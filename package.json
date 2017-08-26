@@ -1,18 +1,21 @@
 {
   "name": "stylib",
-  "version": "1.0.0",
-  "description": "stylib - make DOM style manipulating easier",
+
+  "version": "1.0.2",
+  "description": "stylib - Vast Library For Style Manipulations",
   "main": "js/stylib.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-		"stylib", 
-		"style", 
-		"css", 
-		"js", 
-		"parse", 
-		"stringify", 
+		"stylib",
+		"style",
+    "inline",
+    "outline",
+		"css",
+		"js",
+		"parse",
+		"stringify",
 		"parser"
 	],
   "author": "Gal Weizman <weizmangal@gmail.com> (https://github.com/weizman)",
@@ -20,5 +23,5 @@
   "repository": {
 		"type": "git",
 		"url": "https://github.com/weizman/stylib.git"
-	},
+	}
 }
