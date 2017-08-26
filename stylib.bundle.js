@@ -1,27 +1,20 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var main = require('./main');
+var stylib = require('./stylib');
 
 (function(win, doc) {
-  if ('object' !== typeof window['SPSL']) {
-    window['SPSL'] = {};
-    for (var prop in main) {
-      if (!main.hasOwnProperty(prop)) {
+  if ('object' !== typeof window['SL']) {
+    window['SL'] = {};
+    for (var prop in stylib) {
+      if (!stylib.hasOwnProperty(prop)) {
         continue;
       }
 
-      window['SPSL'][prop] = main[prop];
+      window['SL'][prop] = stylib[prop];
     }
   }
 }(window, document));
 
-},{"./main":2}],2:[function(require,module,exports){
-var inline = require('./modules/inline');
-var outline = require('./modules/outline');
-
-module.exports.inline = inline;
-module.exports.outline = outline;
-
-},{"./modules/inline":3,"./modules/outline":4}],3:[function(require,module,exports){
+},{"./stylib":4}],2:[function(require,module,exports){
 var string = require('../utils/string');
 
 // convert inline style string to valid inline style object
@@ -74,7 +67,7 @@ var stringify = function(obj) {
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/string":5}],4:[function(require,module,exports){
+},{"../utils/string":5}],3:[function(require,module,exports){
 var string = require('../utils/string');
 
 // convert outline style (css) string to valid outline style (css) object
@@ -160,7 +153,14 @@ var stringify = function(obj) {
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/string":5}],5:[function(require,module,exports){
+},{"../utils/string":5}],4:[function(require,module,exports){
+var inline = require('./modules/inline');
+var outline = require('./modules/outline');
+
+module.exports.inline = inline;
+module.exports.outline = outline;
+
+},{"./modules/inline":2,"./modules/outline":3}],5:[function(require,module,exports){
 // get string and return it trimmed (no whitespaces at the beginning/end)
 var trim = function(str) {
   return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
