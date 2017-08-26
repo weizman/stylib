@@ -2,11 +2,23 @@
   "name": "stylib",
   "version": "1.0.0",
   "description": "stylib - make DOM style manipulating easier",
-  "main": "init.js",
+  "main": "./js/init.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["stylib", "style", "css", "js", "parse", "stringify", "parser"],
-  "author": "weizman",
-  "license": "MIT"
+  "keywords": [
+		"stylib", 
+		"style", 
+		"css", 
+		"js", 
+		"parse", 
+		"stringify", 
+		"parser"
+	],
+  "author": "Gal Weizman <weizmangal@gmail.com> (https://github.com/weizman)",
+  "license": "MIT",
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/weizman/stylib.git"
+	},
 }
