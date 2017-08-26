@@ -21,7 +21,7 @@ simply by importing the js file without needing to install it.
 # Build
 To build stylib, simply build it using browserify:
 
-`browserify init.js -o stylib.bundle.js` (while current dir is `.\stylib\`).
+`browserify js/init.js -o stylib.bundle.js` (while current dir is `.\stylib\`).
 
 # Usage (as a lib)
 By including the output file `stylib.bundle.js`, `window['SL']` will be initialized with stylib modules.
