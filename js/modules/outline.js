@@ -17,7 +17,7 @@ var parse = function(str) {
       continue;
     }
 
-    var selector = arr[i].split('\n').join('').split('\r').join('');
+    var selector = string.trim(arr[i].split('\n').join('').split('\r').join(''));
     if (!selector) {
       continue;
     }
