@@ -66,7 +66,7 @@ var handleHierarchy = function(selector) {
     }
 
     if (-1 < Object.keys(HIERARCHY_OPERATORS).indexOf(operator)) {
-      return [parts.join(' '), HIERARCHY_OPERATORS[operator]];
+      return [parts.join(''), HIERARCHY_OPERATORS[operator]];
     }
   }
 
