@@ -17,24 +17,87 @@ var HIERARCHY_OPERATORS = {
   '+' : 'adjacentSibling'
 };
 
-var getRegexMatches = function(str, regex, onMatch) {
-  onMatch = onMatch || function(match) {
+var PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
+var NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
+var WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
+var ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+var CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+var PSEUDOE_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+
+var getRegexMatches = function(str, rgx, onmatch) {
+  rgx = new RegExp(rgx);
+
+  onmatch = onmatch || function(match) {
     return match;
   };
+
   var matches = [];
 
-  var res = regex.exec(str);
+  var res = rgx.exec(str);
   while (res) {
-    matches.push(onMatch(res[0]));
-    res = regex.exec(str);
+    res = onmatch(res[0]);
+    matches.push(res);
+    res = rgx.exec(str);
   }
 
   return matches;
 };
 
-var handleNot = function(selector) {
-  var matches = getRegexMatches(selector, new RegExp(/:not[^\)]*/g), function(match) {
-    return match.slice(5, match.length);
+var getTag = function(obj) {
+  return string.trim(obj['selector'].split('.')[0].split('#')[0].split(':')[0]);
+};
+
+var getIds = function(obj) {
+  var selector = obj['selector'];
+
+  // following might include id selector regex as well.
+  // get rid of before matching
+  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+
+  var matches = getRegexMatches(selector, ID_REGEX, function(match) {
+    return match.substr(1, match.length); // get rid of '#'
+  });
+
+  return matches;
+};
+
+var getClasses = function(obj) {
+  var selector = obj['selector'];
+
+  // following might include class selector regex as well.
+  // get rid of before matching
+  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+
+  var matches = getRegexMatches(selector, CLASS_REGEX, function(match) {
+    return match.substr(1, match.length); // get rid of '.'
+  });
+
+  return matches;
+};
+
+var getPseudos = function(obj) {
+  var selector = obj['selector'];
+
+  // following might include pseudo selector regex as well.
+  // get rid of before matching
+  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+
+  var matches = getRegexMatches(selector, PSEUDOE_REGEX, function(match) {
+    return match.substr(1, match.length); // get rid of ':'
+  });
+
+  return matches;
+};
+
+var getNots = function(selector) {
+  var matches = getRegexMatches(selector, PSEUDOE_NOT_REGEX, function(match) {
+    return match.slice(5, match.length); // get rid of ':not('
   });
 
   if (!matches.length) {
@@ -44,75 +107,19 @@ var handleNot = function(selector) {
   return matches;
 };
 
-var handleHierarchy = function(selector) {
-  var parts = selector.split(/( )/);
-  for (var i in parts) {
-    var operator = parts.shift();
-
-    if (' ' === operator && -1 < Object.keys(HIERARCHY_OPERATORS).indexOf(parts[i])) {
-      continue;
-    }
-
-    if (-1 < Object.keys(HIERARCHY_OPERATORS).indexOf(operator)) {
-      return [parts.join(''), HIERARCHY_OPERATORS[operator]];
-    }
-  }
-
-  return null;
-};
-
-var extractIds = function(obj) {
+var getAttributes = function(obj) {
   var selector = obj['selector'];
 
-  selector = selector.replace(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g, '');
-  selector = selector.replace(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g, '');
-  selector = selector.replace(/\:not\(.*\)/g, '');
+  // following might include attributes selector regex as well.
+  // get rid of before matching
+  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
 
-  var matches = getRegexMatches(selector, new RegExp(/\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g), function(match) {
-    return match.substr(1, match.length);
-  });
+  // helps regex work correcly. TODO: REGEX SHOULD BE FIXED
+  selector = selector.split('][').join(']\n[');
 
-  obj['ids'] = matches;
-};
+  var matches = getRegexMatches(selector, WITH_VAL_ATTRS_REGEX).concat(getRegexMatches(selector, NON_VAL_ATTRS_REGEX));
 
-var extractClasses = function(obj) {
-  var selector = obj['selector'];
-
-  selector = selector.replace(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g, '');
-  selector = selector.replace(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g, '');
-  selector = selector.replace(/\:not\(.*\)/g, '');
-
-  var matches = getRegexMatches(selector, new RegExp(/\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g), function(match) {
-    return match.substr(1, match.length);
-  });
-
-  obj['classes'] = matches;
-};
-
-var extractPseudos = function(obj) {
-  var selector = obj['selector'];
-
-  selector = selector.replace(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g, '');
-  selector = selector.replace(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g, '');
-  selector = selector.replace(/\:not\(.*\)/g, '');
-
-  var matches = getRegexMatches(selector, new RegExp(/\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g), function(match) {
-    return match.substr(1, match.length);
-  });
-
-  obj['pseudos'] = matches;
-};
-
-var extractAttributes = function(obj) {
-  var selector = obj['selector'];
-
-  selector = selector.replace(/\:not\(.*\)/g, '');
-
-  var attrsWithoutVal = getRegexMatches(selector.split('][').join(']\n['), new RegExp(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g));
-  var attrsWithVal = getRegexMatches(selector.split('][').join(']\n['), new RegExp(/\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g));
-  var matches = attrsWithVal.concat(attrsWithoutVal);
-
-  obj['attributes'] = [];
+  var arr = []; // will include all attributes
 
   for (var i in matches) {
     var prop, val, behav, operator = '';
@@ -131,7 +138,7 @@ var extractAttributes = function(obj) {
       behav = ATTRIBUTES_OPERATORS[operator];
 
     } else {
-      operator = attr.slice(eqSignPos - 1, eqSignPos + 1);
+      operator = attr.slice(eqSignPos - 1, eqSignPos + 1); // in case operator is like '{X}='
 
       if (-1 === Object.keys(ATTRIBUTES_OPERATORS).indexOf(operator)) {
         operator = '=';
@@ -142,54 +149,71 @@ var extractAttributes = function(obj) {
       behav = ATTRIBUTES_OPERATORS[operator];
     }
 
-    attrObj['prop'] = prop;
-    attrObj['val'] = val;
-    attrObj['behav'] = behav;
+    attrObj['property'] = prop;
+    attrObj['value'] = val;
+    attrObj['behaviour'] = behav;
     attrObj['operator'] = operator;
 
-    obj['attributes'][i] = attrObj;
+    arr[i] = attrObj;
   }
+
+  return arr;
 };
 
-var extractTag = function(obj) {
-  obj['tag'] = string.trim(obj['selector'].split('.')[0].split('#')[0].split(':')[0]);
+var getHierarchy = function(selector) {
+  var parts = selector.split(/( )/); // split by whitespaces but include them in splitted arr
+
+  for (var i = 0; i < parts.length; i++) {
+    var operator = parts[i];
+
+    // operator must be between whitespaces inside array
+    // this helps distinguish between regular whitespace and hierarchy operator whitespace
+    if (!(' ' === parts[i - 1] && ' ' === parts[i + 1])) {
+      continue;
+    }
+
+    if (-1 < Object.keys(HIERARCHY_OPERATORS).indexOf(operator)) {
+      parts = parts.slice(i + 2); // include only child/sibling from the selector
+      return [HIERARCHY_OPERATORS[operator], parts.join('')];
+    }
+  }
+
+  return null;
 };
 
-var parse = function(str) { // P:hover > SPAN, DIV P, STYLE:empty.class1#id2[style="height: 100px;"]
-  var arr = [];
+var parse = function(str) {
+  var arr = []; // will include all selector's components
 
-  var selectors = str.split(',');
+  var selectors = str.split(','); // ',' sepperates between different general sub selectors
   for (var i in selectors) {
     var selector = selectors[i];
 
     var obj = {};
 
     selector = string.trim(selector);
-    obj['selector'] = selector.split(' ')[0];
+    obj['selector'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
-    extractTag(obj);
-    extractIds(obj);
-    extractClasses(obj);
-    extractPseudos(obj);
+    obj['tag'] = getTag(obj);
+    obj['ids'] = getIds(obj);
+    obj['classes'] = getClasses(obj);
+    obj['pseudos'] = getPseudos(obj);
 
-    var nots = handleNot(obj['selector']);
+    var nots = getNots(obj['selector']);
     if (nots) {
       obj['nots'] = [];
       for (var j in nots) {
-        var not = nots[j];
-
-        obj['nots'][j] = parse(not)[0];
+        obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
       }
     }
 
-    extractAttributes(obj);
+    obj['attributes'] = getAttributes(obj);
 
-    var childSelectorAndKind = handleHierarchy(selector);
-    if (childSelectorAndKind) {
-      var childSelector = childSelectorAndKind[0];
-      var kind = childSelectorAndKind[1];
+    var ret = getHierarchy(selector);
+    if (ret) {
+      var hierarchyKind = ret[0];
+      var nextSelector = ret[1];
 
-      obj[kind] = parse(childSelector)[0];
+      obj[hierarchyKind] = parse(nextSelector)[0]; // parse the next hierarchy component
     }
 
     arr[i] = obj;
@@ -197,7 +221,5 @@ var parse = function(str) { // P:hover > SPAN, DIV P, STYLE:empty.class1#id2[sty
 
   return arr;
 };
-
-var stringify = function() {};
 
 module.exports.parse = parse;
