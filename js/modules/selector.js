@@ -17,18 +17,6 @@ var HIERARCHY_OPERATORS = {
   '+' : 'adjacentSibling'
 };
 
-function Selector(selectorStr) {
-  this.selectorStr = selectorStr;
-  this.selectorObj = parse(this.selectorStr);
-};
-
-Selector.prototype.append = {};
-Selector.prototype.remove = {};
-
-Selector.prototype.append.class = function(str) {
-
-};
-
 var getRegexMatches = function(str, regex, onMatch) {
   onMatch = onMatch || function(match) {
     return match;
