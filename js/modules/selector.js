@@ -45,8 +45,8 @@ var getRegexMatches = function(str, regex, onMatch) {
 };
 
 var handleNot = function(selector) {
-  var matches = getRegexMatches(selector, new RegExp(/\:not\(.*\)/g), function(match) {
-    return match.slice(5, match.length - 1)
+  var matches = getRegexMatches(selector, new RegExp(/:not[^\)]*/g), function(match) {
+    return match.slice(5, match.length);
   });
 
   if (!matches.length) {

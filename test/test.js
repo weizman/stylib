@@ -1,7 +1,7 @@
 window.addEventListener('load', function() {
   var cssObj = {'#MY_DIV' : {'display' : 'none', 'opacity' : 0, 'background-color' : 'red'}, '.MY_CLASS_1 , .MY_CLASS_2' : {'display' : 'block'} };
   var inlineObj = {'display' : 'none', 'opacity' : 0, 'background-color' : 'red'};
-  var selectorStr = '*, #ID.CLASS, P:hover:nth-child(3n)::wow > SPAN#qq:not(SPAN):not(P#x:not(*.z.a[style*="www"][xxx])) ~ P.sss, DIV P, STYLE:empty.class1#id2[style="aaa:click"][style][style^=\'aaa\']';
+  var selectorStr = '*, #ID.CLASS, P:hover:nth-child(3n)::wow > SPAN#qq:not(SPAN):not(*.z.a[style*="{1}"][xxx]) ~ P.sss, DIV P, STYLE:empty.class1#id2[style="aaa:click"][style][style^=\'aaa\']';
 
   var inlineStr = SL.inline.stringify(inlineObj);
   console.log('inline style object:\n %o\n was converted into inline style string:\n "%s"\n', inlineObj, inlineStr);
