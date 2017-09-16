@@ -187,10 +187,10 @@ var parse = function(str) { // P:hover > SPAN, DIV P, STYLE:empty.class1#id2[sty
     var nots = handleNot(obj['selector']);
     if (nots) {
       obj['nots'] = [];
-      for (var i in nots) {
-        var not = nots[i];
+      for (var j in nots) {
+        var not = nots[j];
 
-        obj['nots'][i] = parse(not)[0];
+        obj['nots'][j] = parse(not)[0];
       }
     }
 
