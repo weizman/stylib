@@ -62,7 +62,7 @@ var stringify = function(obj) {
 
     var rules = obj[selector];
 
-    str += selector + ' {';
+    str += selector + ' {\n';
 
     for (var prop in rules) {
       if (!rules.hasOwnProperty(prop)) {
@@ -71,7 +71,7 @@ var stringify = function(obj) {
 
       var val = rules[prop];
 
-      str += prop + ': ' + val + '; ';
+      str += '\t' + prop + ': ' + val + ';\n';
     }
 
     str += '}\n';
