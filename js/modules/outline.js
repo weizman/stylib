@@ -10,21 +10,21 @@ var parse = function(str) {
 
   var delimitor = Math.random().toString(36).slice(2);
 
-  // trick in order to split string by '{' and '}' but without removing '{' and '}' from the splitted array
+  // trick to split by '{' and '}' but include them in splitted arr. TODO: REGEX IT
   var arr = str.split('{').join(delimitor + '{').split('}').join('}' + delimitor).split(delimitor);
   for (var i = 0; i < arr.length; i += 2) {
     if (i + 1 === arr.length) {
       continue;
     }
 
-    var selector = string.trim(arr[i].split('\n').join('').split('\r').join(''));
+    var selector = string.trim(string.removeLineBreakers(arr[i]));
     if (!selector) {
       continue;
     }
 
     obj[selector] = {};
 
-    var rules = arr[i + 1].split('\n').join('').split('\r').join('');
+    var rules = string.removeLineBreakers(arr[i + 1]);
     rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
 
     var sets = rules.split(';');
