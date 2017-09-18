@@ -43,15 +43,12 @@ var getRegexMatches = function(str, rgx, onmatch) {
   return matches;
 };
 
-var getTag = function(obj) {
-  return string.trim(obj['selector'].split('.')[0].split('#')[0].split(':')[0]);
+var getTag = function(selector) {
+  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0]);
 };
 
-var getIds = function(obj) {
-  var selector = obj['selector'];
-
-  // following might include id selector regex as well.
-  // get rid of before matching
+var getIds = function(selector) {
+  // following might include id selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
@@ -63,11 +60,8 @@ var getIds = function(obj) {
   return matches;
 };
 
-var getClasses = function(obj) {
-  var selector = obj['selector'];
-
-  // following might include class selector regex as well.
-  // get rid of before matching
+var getClasses = function(selector) {
+  // following might include class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
@@ -79,11 +73,8 @@ var getClasses = function(obj) {
   return matches;
 };
 
-var getPseudos = function(obj) {
-  var selector = obj['selector'];
-
-  // following might include pseudo selector regex as well.
-  // get rid of before matching
+var getPseudos = function(selector) {
+  // following might include pseudo selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
@@ -107,11 +98,8 @@ var getNots = function(selector) {
   return matches;
 };
 
-var getAttributes = function(obj) {
-  var selector = obj['selector'];
-
-  // following might include attributes selector regex as well.
-  // get rid of before matching
+var getAttributes = function(selector) {
+  // following might include attributes selector regex as well. get rid of before matching
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
 
   // helps regex work correcly. TODO: REGEX SHOULD BE FIXED
