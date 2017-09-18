@@ -237,10 +237,10 @@ var parse = function(str) {
     selector = string.trim(selector);
     obj['selector'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
-    obj['tag'] = getTag(obj);
-    obj['ids'] = getIds(obj);
-    obj['classes'] = getClasses(obj);
-    obj['pseudos'] = getPseudos(obj);
+    obj['tag'] = getTag(selector);
+    obj['ids'] = getIds(selector);
+    obj['classes'] = getClasses(selector);
+    obj['pseudos'] = getPseudos(selector);
 
     var nots = getNots(obj['selector']);
     if (nots) {
@@ -250,7 +250,7 @@ var parse = function(str) {
       }
     }
 
-    obj['attributes'] = getAttributes(obj);
+    obj['attributes'] = getAttributes(selector);
 
     var ret = getHierarchy(selector);
     if (ret) {
