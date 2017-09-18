@@ -244,6 +244,10 @@ var parse = function(str) {
   for (var i in selectors) {
     var selector = selectors[i];
 
+    if (!selector) {
+      continue;
+    }
+
     var obj = {};
 
     selector = string.trim(selector);
@@ -283,4 +287,39 @@ var parse = function(str) {
   return arr;
 };
 
+/**
+ * var stringify - convert selector's representation as an array into the raw selector as a string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
+var stringify = function(arr) {
+  var str = '';
+
+  for (var i in arr) {
+    var selector = arr[i];
+
+    str += selector['selector'];
+
+    var addComma = true;
+
+    for (var operator in HIERARCHY_OPERATORS) {
+      var hir = HIERARCHY_OPERATORS[operator];
+
+      if (selector[hir]) {
+        str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
+        str += stringify([selector[hir]]);
+        addComma = false; // do not add comma when handling hierarchy
+      }
+    }
+
+    if (addComma) {
+      str += ', ';
+    }
+  }
+
+  return str;
+};
+
 module.exports.parse = parse;
+module.exports.stringify = stringify;
