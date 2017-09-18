@@ -24,6 +24,14 @@ var ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
 var CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
 var PSEUDOE_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 
+/**
+ * var getRegexMatches - get string and regular expression and return matches
+ *
+ * @param  {string} str
+ * @param  {RegExp} rgx
+ * @param  {function} [onmatch] to run on each match
+ * @returns {array}
+ */
 var getRegexMatches = function(str, rgx, onmatch) {
   rgx = new RegExp(rgx);
 
@@ -43,10 +51,22 @@ var getRegexMatches = function(str, rgx, onmatch) {
   return matches;
 };
 
+/**
+ * var getTag - get selector string and extract the tag from it
+ *
+ * @param  {string} selector
+ * @returns {string}
+ */
 var getTag = function(selector) {
   return string.trim(selector.split('.')[0].split('#')[0].split(':')[0]);
 };
 
+/**
+ * var getIds - get selector string and extract the ids from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
 var getIds = function(selector) {
   // following might include id selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
@@ -60,6 +80,12 @@ var getIds = function(selector) {
   return matches;
 };
 
+/**
+ * var getClasses - get selector string and extract the classes from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
 var getClasses = function(selector) {
   // following might include class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
@@ -73,6 +99,12 @@ var getClasses = function(selector) {
   return matches;
 };
 
+/**
+ * var getPseudos - get selector string and extract the pseudos from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
 var getPseudos = function(selector) {
   // following might include pseudo selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
@@ -86,6 +118,12 @@ var getPseudos = function(selector) {
   return matches;
 };
 
+/**
+ * var getNots - get selector string and extract the pseudos nots from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
 var getNots = function(selector) {
   var matches = getRegexMatches(selector, PSEUDOE_NOT_REGEX, function(match) {
     return match.slice(5, match.length); // get rid of ':not('
@@ -98,6 +136,12 @@ var getNots = function(selector) {
   return matches;
 };
 
+/**
+ * var getAttributes - get selector string and extract the attributes from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
 var getAttributes = function(selector) {
   // following might include attributes selector regex as well. get rid of before matching
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
@@ -148,6 +192,12 @@ var getAttributes = function(selector) {
   return arr;
 };
 
+/**
+ * var getHierarchy - get selector string, parse the next hierarchy in it, and return it
+ *
+ * @param  {string} selector
+ * @returns {array} [kind of hierarchy, new selector (contains only the child/sibling selector)]
+ */
 var getHierarchy = function(selector) {
   var parts = selector.split(/( )/); // split by whitespaces but include them in splitted arr
 
@@ -169,6 +219,12 @@ var getHierarchy = function(selector) {
   return null;
 };
 
+/**
+ * var parse - convert selector string into the selector's representation as an object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
 var parse = function(str) {
   var arr = []; // will include all selector's components
 

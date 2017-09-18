@@ -1,10 +1,11 @@
 var string = require('../utils/string');
 
-// convert outline style (css) string to valid outline style (css) object
-// from:
-// '#MY_DIV {display: none; opacity: 0; background-color: red;} .MY_CLASS_1 , .MY_CLASS_2 {display: block}'
-// to:
-// {'#MY_DIV' : {'display' : 'none', 'opacity' : 0, 'background-color' : 'red'}, '.MY_CLASS_1 , .MY_CLASS_2' : {'display' : 'block'} }
+/**
+ * var parse - convert outline style (css) string to valid outline style (css) object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
 var parse = function(str) {
   var obj = {};
 
@@ -48,11 +49,12 @@ var parse = function(str) {
   return obj;
 };
 
-// convert outline style (css) object to valid outline style (css) string
-// from:
-// {'#MY_DIV' : {'display' : 'none', 'opacity' : 0, 'background-color' : 'red'}, '.MY_CLASS_1 , .MY_CLASS_2' : {'display' : 'block'} }
-// to:
-// '#MY_DIV {display: none; opacity: 0; background-color: red;} .MY_CLASS_1 , .MY_CLASS_2 {display: block}'
+/**
+ * var stringify - convert outline style (css) object to valid outline style (css) string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
 var stringify = function(obj) {
   var str = '';
   for (var selector in obj) {

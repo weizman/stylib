@@ -1,10 +1,11 @@
 var string = require('../utils/string');
 
-// convert inline style string to valid inline style object
-// from:
-// 'display: none; opacity: 0; background-color: red;'
-// to:
-// {'display' : 'none', 'opacity' : 0, 'background-color' : 'red'}
+/**
+ * var parse - convert inline style string to valid inline style object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
 var parse = function(str) {
   var obj = {};
 
@@ -26,11 +27,12 @@ var parse = function(str) {
   return obj;
 };
 
-// convert inline style object to valid inline style string
-// from:
-// {'display' : 'none', 'opacity' : 0, 'background-color' : 'red'}
-// to:
-// 'display: none; opacity: 0; background-color: red;'
+/**
+ * var stringify - convert inline style object to valid inline style string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
 var stringify = function(obj) {
   var str = '';
 
