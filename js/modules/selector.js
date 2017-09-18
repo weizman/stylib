@@ -194,26 +194,37 @@ var getAttributes = function(selector) {
 };
 
 /**
- * var getHierarchy - get selector string, parse the next hierarchy in it, and return it
+ * var splitByHierarchy - get selector string, parse the next hierarchy in it, and return it
  *
  * @param  {string} selector
- * @returns {array} [kind of hierarchy, new selector (contains only the child/sibling selector)]
+ * @returns {array} [selector before hierarchy operator occurence, kind of hierarchy, selector after hierarchy operator occurence]
  */
-var getHierarchy = function(selector) {
+var splitByHierarchy = function(selector) {
   var parts = selector.split(/( )/); // split by whitespaces but include them in splitted arr
 
   for (var i = 0; i < parts.length; i++) {
-    var operator = parts[i];
+    var bfrChar = parts[i - 1];
+    var curChar = parts[i]; // possibly an operator
+    var afrChar = parts[i + 1];
 
-    // operator must be between whitespaces inside array
-    // this helps distinguish between regular whitespace and hierarchy operator whitespace
-    if (!(' ' === parts[i - 1] && ' ' === parts[i + 1])) {
-      continue;
-    }
+    if (array.includes(Object.keys(HIERARCHY_OPERATORS), curChar)) {
+      var operator = curChar; // curChar is an operator
 
-    if (-1 < Object.keys(HIERARCHY_OPERATORS).indexOf(operator)) {
-      parts = parts.slice(i + 2); // include only child/sibling from the selector
-      return [HIERARCHY_OPERATORS[operator], parts.join('')];
+      // in case operator is not a whitespace, it must be between whitespaces inside array
+      // this helps distinguish between regular whitespace and hierarchy operator whitespace
+      if (' ' === bfrChar && ' ' === afrChar) {
+        return [parts.slice(0, i + 1).join(''), HIERARCHY_OPERATORS[operator], parts.slice(i + 2).join('')];
+      }
+
+      var bfrCharIsOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
+      var afrCharIsOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
+
+      // in case operator is simply a whitespace and not the real operator, continue
+      if (' ' === operator && (bfrCharIsOperator || afrCharIsOperator)) {
+        continue;
+      }
+
+      return [parts.slice(0, i - 1).join(''), HIERARCHY_OPERATORS[operator], parts.slice(i).join('')];
     }
   }
 
@@ -221,7 +232,7 @@ var getHierarchy = function(selector) {
 };
 
 /**
- * var parse - convert selector string into the selector's representation as an object
+ * var parse - convert selector string into the selector's representation as an array
  *
  * @param  {string} str
  * @returns {array}
@@ -239,6 +250,19 @@ var parse = function(str) {
     obj['selector'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
     obj['tag'] = getTag(selector);
+
+    var ret = splitByHierarchy(selector);
+    if (ret) {
+      var bfrSelector = ret[0];
+      var hierarchyKind = ret[1];
+      var afrSelector = ret[2];
+
+      obj[hierarchyKind] = parse(afrSelector)[0]; // parse the next hierarchy component
+
+      // only the selector of before the operator occurence should be extracted for information
+      selector = bfrSelector;
+    }
+
     obj['ids'] = getIds(selector);
     obj['classes'] = getClasses(selector);
     obj['pseudos'] = getPseudos(selector);
@@ -252,14 +276,6 @@ var parse = function(str) {
     }
 
     obj['attributes'] = getAttributes(selector);
-
-    var ret = getHierarchy(selector);
-    if (ret) {
-      var hierarchyKind = ret[0];
-      var nextSelector = ret[1];
-
-      obj[hierarchyKind] = parse(nextSelector)[0]; // parse the next hierarchy component
-    }
 
     arr[i] = obj;
   }
