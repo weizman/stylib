@@ -1,4 +1,5 @@
 var string = require('../utils/string');
+var array = require('../utils/array');
 
 var  ATTRIBUTES_OPERATORS = {
   '' : 'present',
@@ -172,7 +173,7 @@ var getAttributes = function(selector) {
     } else {
       operator = attr.slice(eqSignPos - 1, eqSignPos + 1); // in case operator is like '{X}='
 
-      if (-1 === Object.keys(ATTRIBUTES_OPERATORS).indexOf(operator)) {
+      if (!array.includes(Object.keys(ATTRIBUTES_OPERATORS), operator)) {
         operator = '=';
       }
 
@@ -223,7 +224,7 @@ var getHierarchy = function(selector) {
  * var parse - convert selector string into the selector's representation as an object
  *
  * @param  {string} str
- * @returns {object}
+ * @returns {array}
  */
 var parse = function(str) {
   var arr = []; // will include all selector's components
