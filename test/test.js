@@ -17,4 +17,7 @@ window.addEventListener('load', function() {
 
   var selectorObj = SL.selector.parse(selectorStr);
   console.log('selector string:\n "%s"\n was converted into selector object:\n %o\n', selectorStr, selectorObj);
+
+  var selectorStr = SL.selector.stringify(selectorObj);
+  console.log('selector object:\n %o\n was converted into selector string:\n "%s"\n', selectorObj, selectorStr);
 });
