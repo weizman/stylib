@@ -294,30 +294,36 @@ var parse = function(str) {
  * @returns {string}
  */
 var stringify = function(arr) {
-  var str = '';
+  var stringifyRecursive = function(arr) {
+    var str = '';
 
-  for (var i in arr) {
-    var selector = arr[i];
+    for (var i in arr) {
+      var selector = arr[i];
 
-    str += selector['selector'];
+      str += selector['selector'];
 
-    var addComma = true;
+      var addComma = true;
 
-    for (var operator in HIERARCHY_OPERATORS) {
-      var hir = HIERARCHY_OPERATORS[operator];
+      for (var operator in HIERARCHY_OPERATORS) {
+        var hir = HIERARCHY_OPERATORS[operator];
 
-      if (selector[hir]) {
-        str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
-        str += stringify([selector[hir]]);
-        addComma = false; // do not add comma when handling hierarchy
+        if (selector[hir]) {
+          str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
+          str += stringify([selector[hir]]);
+          addComma = false; // do not add comma when handling hierarchy
+        }
+      }
+
+      if (addComma) {
+        str += ', ';
       }
     }
 
-    if (addComma) {
-      str += ', ';
-    }
-  }
+    return str;
+  };
 
+  var str = stringifyRecursive(arr);
+  str = str.slice(0, str.length - 2); // cut last redundent comma
   return str;
 };
 
