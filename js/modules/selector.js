@@ -323,7 +323,9 @@ var stringify = function(arr) {
   };
 
   var str = stringifyRecursive(arr);
-  str = str.slice(0, str.length - 2); // cut last redundent comma
+  if (', ' === str.slice(str.length - 2, str.length)) {
+    str = str.slice(0, str.length - 2); // cut last redundent comma
+  }
   return str;
 };
 
