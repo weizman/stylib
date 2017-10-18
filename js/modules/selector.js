@@ -214,11 +214,11 @@ var splitByHierarchy = function(selector) {
         return [parts.slice(0, i + 1).join(''), HIERARCHY_OPERATORS[operator], parts.slice(i + 2).join('')];
       }
 
-      var bfrCharIsOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
-      var afrCharIsOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
+      var isBfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
+      var isAfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
 
       // in case operator is simply a whitespace and not the real operator, continue
-      if (' ' === operator && (bfrCharIsOperator || afrCharIsOperator)) {
+      if (' ' === operator && (isBfrCharAnOperator || isAfrCharAnOperator)) {
         continue;
       }
 
