@@ -156,12 +156,10 @@ var getAttributes = function(selector) {
 
   for (var i in matches) {
     var prop, val, behav, operator = '';
-    var attr = matches[i];
+    var attr = matches[i].slice(1, matches[i].length - 1); // get rid of '[' and ']'
     var attrObj = {};
 
     attrObj['raw'] = attr;
-
-    attr = attr.slice(1, attr.length - 1); // get rid of '[' and ']'
 
     var eqSignPos = attr.indexOf('=');
 
