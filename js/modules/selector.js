@@ -249,7 +249,7 @@ var parse = function(str) {
     var obj = {};
 
     selector = string.trim(selector);
-    obj['selector'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
+    obj['raw'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
     obj['tag'] = getTag(selector);
 
@@ -269,7 +269,7 @@ var parse = function(str) {
     obj['classes'] = getClasses(selector);
     obj['pseudos'] = getPseudos(selector);
 
-    var nots = getNots(obj['selector']);
+    var nots = getNots(obj['raw']);
     if (nots) {
       obj['nots'] = [];
       for (var j in nots) {
@@ -298,7 +298,7 @@ var stringify = function(arr) {
     for (var i in arr) {
       var selector = arr[i];
 
-      str += selector['selector'];
+      str += selector['raw'];
 
       var addComma = true;
 

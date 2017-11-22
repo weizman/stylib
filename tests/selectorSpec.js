@@ -8,7 +8,7 @@ describe("selector", function() {
       'classes' : [],
       'ids' : [],
       'pseudos' : [],
-      'selector' : '*',
+      'raw' : '*',
       'tag' : '*'
     }
   ];
@@ -20,7 +20,7 @@ describe("selector", function() {
       'classes' : ['CLASS'],
       'ids' : ['ID'],
       'pseudos' : [],
-      'selector' : '#ID.CLASS',
+      'raw' : '#ID.CLASS',
       'tag' : null
     }
   ];
@@ -32,7 +32,7 @@ describe("selector", function() {
       'classes' : [],
       'ids' : [],
       'pseudos' : ['hover', 'nth-child(3n)', 'wow'],
-      'selector' : 'P:hover:nth-child(3n)::wow',
+      'raw' : 'P:hover:nth-child(3n)::wow',
       'tag' : 'P',
       'directChild' : {
         'attributes' : [],
@@ -45,7 +45,7 @@ describe("selector", function() {
             'classes' : [],
             'ids' : [],
             'pseudos' : [],
-            'selector' : 'SPAN',
+            'raw' : 'SPAN',
             'tag' : 'SPAN'
           },
           {
@@ -68,18 +68,18 @@ describe("selector", function() {
             'classes' : ['z', 'a'],
             'ids' : [],
             'pseudos' : [],
-            'selector' : '*.z.a[style*="{1}"][xxx]',
+            'raw' : '*.z.a[style*="{1}"][xxx]',
             'tag' : '*'
           }
         ],
-        'selector' : 'SPAN#qq:not(SPAN):not(*.z.a[style*="{1}"][xxx])',
+        'raw' : 'SPAN#qq:not(SPAN):not(*.z.a[style*="{1}"][xxx])',
         'tag' : 'SPAN',
         'generalSibling' : {
           'attributes' : [],
           'classes' : ['sss'],
           'ids' : [],
           'pseudos' : [],
-          'selector' : 'P.sss',
+          'raw' : 'P.sss',
           'tag' : 'P'
         }
       }
@@ -115,7 +115,7 @@ describe("selector", function() {
       'classes' : ['class1'],
       'ids' : ['id2'],
       'pseudos' : ['empty'],
-      'selector' : 'STYLE:empty.class1#id2[style="aaa:click"][style][style^=\'aaa\']',
+      'raw' : 'STYLE:empty.class1#id2[style="aaa:click"][style][style^=\'aaa\']',
       'tag' : 'STYLE'
     }
   ];
