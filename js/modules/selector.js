@@ -59,7 +59,7 @@ var getRegexMatches = function(str, rgx, onmatch) {
  * @returns {string}
  */
 var getTag = function(selector) {
-  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || null;
+  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || '*';
 };
 
 /**

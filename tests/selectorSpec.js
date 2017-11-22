@@ -21,7 +21,7 @@ describe("selector", function() {
       'ids' : ['ID'],
       'pseudos' : [],
       'raw' : '#ID.CLASS',
-      'tag' : null
+      'tag' : '*'
     }
   ];
 
