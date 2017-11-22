@@ -300,21 +300,16 @@ var stringify = function(arr) {
 
       str += selector['raw'];
 
-      var addComma = true;
-
       for (var operator in HIERARCHY_OPERATORS) {
         var hir = HIERARCHY_OPERATORS[operator];
 
         if (selector[hir]) {
           str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
           str += stringify([selector[hir]]);
-          addComma = false; // do not add comma when handling hierarchy
         }
       }
 
-      if (addComma) {
-        str += ', ';
-      }
+      str += ', ';
     }
 
     return str;
