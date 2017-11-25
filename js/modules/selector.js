@@ -279,7 +279,7 @@ var parse = function(str) {
 
     obj['attributes'] = getAttributes(selector);
 
-    arr[i] = obj;
+    arr[i] = new Selector(obj);
   }
 
   return arr;
@@ -322,5 +322,23 @@ var stringify = function(arr) {
   return str;
 };
 
-module.exports.parse = parse;
-module.exports.stringify = stringify;
+
+/**
+ * Selector - constructor of Selector type
+ *
+ * @param  {object} selectorObj
+ * @returns {Selector}
+ */
+function Selector(selectorObj) {
+  for (var prop in selectorObj) {
+    this[prop] = selectorObj[prop];
+  }
+
+  this.stringify = stringify.bind(null, [selectorObj]);
+  this.parse = parse.bind(null, selectorObj.raw);
+};
+
+Selector.parse = parse;
+Selector.stringify = stringify;
+
+module.exports = Selector;

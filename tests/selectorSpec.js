@@ -1,5 +1,93 @@
 describe("selector", function() {
-  var selector = require('../../stylib').selector;
+  var Selector = require('../../stylib').Selector;
+
+  /**
+   * var selectorify - takes an array of Selectors/objects and straighten them up
+   * in order to perform comparison on them after
+   *
+   * @param  {array} arr array of Selectors/objects
+   * @returns {array} when all objects are selectorified
+   */
+  var selectorify = function(arr, deleteSelectorFuncs) {
+    var selectorifyRecursive = function(obj) {
+      for (var i in obj) {
+        var value = obj[i];
+
+        if (!value || 'object' !== typeof value) {
+          // null? undefined? primitive? no need to manipulate
+          continue;
+        }
+
+        if (Array.isArray(value)) {
+          // array? recursively manipulate every item in array
+          for (var j in value) {
+            value[j] = selectorifyRecursive(value[j]);
+          }
+        } else {
+          // object? needs to be selectorified as well. take care in next recursive
+          obj[i] = selectorifyRecursive(value);
+        }
+
+      };
+
+      if (!obj.tag) {
+        // obj does not have 'tag' property? means it is not an object to selectorify
+        return obj;
+      }
+
+      var finalObj = obj;
+      if (0 !== obj.constructor.toString().indexOf('function Selector')) {
+        // selectorify only when obj is not already a Selector instance
+        finalObj = new Selector(obj);
+      }
+
+      if (deleteSelectorFuncs) {
+        // no need comparing functions in tests of objects
+        delete finalObj.parse;
+        delete finalObj.stringify;
+      }
+
+      return finalObj;
+    };
+
+    arr = arr.slice(0); // duplicate array, do not work on original
+    for (var i in arr) {
+      var obj = arr[i];
+      arr[i] = selectorifyRecursive(obj);
+    }
+
+    return arr;
+  };
+
+  /**
+   * var testSelector - takes a selector object a selector string and tests
+   * whether selector module functions work properly or not
+   *
+   * @param  {object} selectorObj selector representation in object
+   * @param {string} selectorStr selector representation in string
+   * @param {boolean} selectorObjContainsHierarchy whether selector object contains hierarchy or not
+   */
+  var testSelector = function(selectorObj, selectorStr, selectorObjContainsHierarchy) {
+    var str1 = Selector.stringify(selectorObj);
+    var str2 = selectorStr;
+
+    expect(str1).toEqual(str2);
+
+    var obj1 = selectorify(selectorObj, true);
+    var obj2 = selectorify(Selector.parse(selectorStr), true);
+
+    expect(obj1[0]).toEqual(obj2[0]);
+
+    var obj1 = selectorify(selectorObj);
+    var obj2 = selectorify(Selector.parse(selectorStr));
+
+    // in case selector object contains hierarchy,
+    // must use Selector.stringify to make it work
+    expect(selectorObjContainsHierarchy ?
+      Selector.stringify([selectorObj[0]]) :
+      selectorObj[0].raw
+    ).toEqual(obj2[0].stringify());
+  };
 
   var selectorStr1 = '*';
   var selectorObj1 = [
@@ -121,42 +209,25 @@ describe("selector", function() {
   ];
 
   it("should be able to stringify/parse a selector object/string (1)", function() {
-    var str1 = selector.stringify(selectorObj1);
-    var str2 = selectorStr1;
-    var obj1 = selectorObj1;
-    var obj2 = selector.parse(selectorStr1);
-
-    expect(str1).toEqual(str2);
-    expect(obj1).toEqual(obj2);
+    testSelector(selectorObj1, selectorStr1);
   });
 
   it("should be able to stringify/parse a selector object/string (2)", function() {
-    var str1 = selector.stringify(selectorObj2);
-    var str2 = selectorStr2;
-    var obj1 = selectorObj2;
-    var obj2 = selector.parse(selectorStr2);
-
-    expect(str1).toEqual(str2);
-    expect(obj1).toEqual(obj2);
+    testSelector(selectorObj2, selectorStr2);
   });
 
   it("should be able to stringify/parse a selector object/string (3)", function() {
-    var str1 = selector.stringify(selectorObj3);
-    var str2 = selectorStr3;
-    var obj1 = selectorObj3;
-    var obj2 = selector.parse(selectorStr3);
-
-    expect(str1).toEqual(str2);
-    expect(obj1).toEqual(obj2);
+    testSelector(selectorObj3, selectorStr3, true);
   });
 
   it("should be able to stringify/parse a selector object/string (4)", function() {
-    var str1 = selector.stringify(selectorObj4);
-    var str2 = selectorStr4;
-    var obj1 = selectorObj4;
-    var obj2 = selector.parse(selectorStr4);
+    testSelector(selectorObj4, selectorStr4);
+  });
 
-    expect(str1).toEqual(str2);
-    expect(obj1).toEqual(obj2);
+  it("should be able to stringify/parse a selector object/string (5)", function() {
+    var selectorObj5 = selectorObj1.concat(selectorObj2.concat(selectorObj3.concat(selectorObj4)));
+    var selectorStr5 = selectorStr1 + ', ' + selectorStr2 + ', ' + selectorStr3 + ', ' + selectorStr4;
+
+    testSelector(selectorObj5, selectorStr5);
   });
 });

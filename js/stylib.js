@@ -1,7 +1,7 @@
 var inline = require('./modules/inline');
 var outline = require('./modules/outline');
-var selector = require('./modules/selector');
+var Selector = require('./modules/Selector');
 
 module.exports.inline = inline;
 module.exports.outline = outline;
-module.exports.selector = selector;
+module.exports.Selector = Selector;
