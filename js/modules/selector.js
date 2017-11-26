@@ -233,7 +233,7 @@ var splitByHierarchy = function(selector) {
  * var parse - convert selector string into the selector's representation as an array
  *
  * @param  {string} str
- * @returns {array}
+ * @returns {array} array of Selectors
  */
 var parse = function(str) {
   var arr = []; // will include all selector's components
@@ -288,7 +288,7 @@ var parse = function(str) {
 /**
  * var stringify - convert selector's representation as an array into the raw selector as a string
  *
- * @param  {object} obj
+ * @param  {array} arr - array of Selectors
  * @returns {string}
  */
 var stringify = function(arr) {
