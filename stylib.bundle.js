@@ -16,149 +16,6 @@ var stylib = require('./stylib');
 
 },{"./stylib":5}],2:[function(require,module,exports){
 var string = require('../utils/string');
-
-/**
- * var parse - convert inline style string to valid inline style object
- *
- * @param  {string} str
- * @returns {object}
- */
-var parse = function(str) {
-  var obj = {};
-
-  var sets = str.split(';');
-  for (var i in sets) {
-    var set = string.trim(sets[i]);
-    if (!set) {
-      continue;
-    }
-
-    var prop = string.trim(set.split(':')[0]);
-    var val = string.trim(set.split(':')[1]);
-
-    if (prop && val) {
-      obj[prop] = val;
-    }
-  }
-
-  return obj;
-};
-
-/**
- * var stringify - convert inline style object to valid inline style string
- *
- * @param  {object} obj
- * @returns {string}
- */
-var stringify = function(obj) {
-  var str = '';
-
-  for (var prop in obj) {
-    if (!obj.hasOwnProperty(prop)) {
-      continue;
-    }
-
-    var val = obj[prop];
-
-    str += prop + ': ' + val + '; ';
-  }
-
-  return str
-};
-
-module.exports.parse = parse;
-module.exports.stringify = stringify;
-
-},{"../utils/string":7}],3:[function(require,module,exports){
-var string = require('../utils/string');
-
-/**
- * var parse - convert outline style (css) string to valid outline style (css) object
- *
- * @param  {string} str
- * @returns {object}
- */
-var parse = function(str) {
-  var obj = {};
-
-  var delimitor = Math.random().toString(36).slice(2);
-
-  // trick to split by '{' and '}' but include them in splitted arr. TODO: REGEX IT
-  var arr = str.split('{').join(delimitor + '{').split('}').join('}' + delimitor).split(delimitor);
-  for (var i = 0; i < arr.length; i += 2) {
-    if (i + 1 === arr.length) {
-      continue;
-    }
-
-    var selector = string.trim(string.removeLineBreakers(arr[i]));
-    if (!selector) {
-      continue;
-    }
-
-    obj[selector] = {};
-
-    var rules = string.removeLineBreakers(arr[i + 1]);
-    rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
-
-    var sets = rules.split(';');
-    for (var j in sets) {
-      var set = sets[j];
-
-      var prop = string.trim(set.split(':')[0]);
-      if (!prop) {
-          continue;
-      }
-
-      var val = string.trim(set.split(':')[1]);
-      if (!val) {
-        continue;
-      }
-
-      obj[selector][prop] = val;
-    }
-  }
-
-  return obj;
-};
-
-/**
- * var stringify - convert outline style (css) object to valid outline style (css) string
- *
- * @param  {object} obj
- * @returns {string}
- */
-var stringify = function(obj) {
-  var str = '';
-  for (var selector in obj) {
-    if (!obj.hasOwnProperty(selector)) {
-      continue;
-    }
-
-    var rules = obj[selector];
-
-    str += selector + ' {\n';
-
-    for (var prop in rules) {
-      if (!rules.hasOwnProperty(prop)) {
-        continue;
-      }
-
-      var val = rules[prop];
-
-      str += '\t' + prop + ': ' + val + ';\n';
-    }
-
-    str += '}\n';
-  }
-
-  return str;
-};
-
-module.exports.parse = parse;
-module.exports.stringify = stringify;
-
-},{"../utils/string":7}],4:[function(require,module,exports){
-var string = require('../utils/string');
 var array = require('../utils/array');
 
 var  ATTRIBUTES_OPERATORS = {
@@ -219,7 +76,7 @@ var getRegexMatches = function(str, rgx, onmatch) {
  * @returns {string}
  */
 var getTag = function(selector) {
-  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || null;
+  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || '*';
 };
 
 /**
@@ -316,12 +173,10 @@ var getAttributes = function(selector) {
 
   for (var i in matches) {
     var prop, val, behav, operator = '';
-    var attr = matches[i];
+    var attr = matches[i].slice(1, matches[i].length - 1); // get rid of '[' and ']'
     var attrObj = {};
 
     attrObj['raw'] = attr;
-
-    attr = attr.slice(1, attr.length - 1); // get rid of '[' and ']'
 
     var eqSignPos = attr.indexOf('=');
 
@@ -376,11 +231,11 @@ var splitByHierarchy = function(selector) {
         return [parts.slice(0, i + 1).join(''), HIERARCHY_OPERATORS[operator], parts.slice(i + 2).join('')];
       }
 
-      var bfrCharIsOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
-      var afrCharIsOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
+      var isBfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
+      var isAfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
 
       // in case operator is simply a whitespace and not the real operator, continue
-      if (' ' === operator && (bfrCharIsOperator || afrCharIsOperator)) {
+      if (' ' === operator && (isBfrCharAnOperator || isAfrCharAnOperator)) {
         continue;
       }
 
@@ -395,7 +250,7 @@ var splitByHierarchy = function(selector) {
  * var parse - convert selector string into the selector's representation as an array
  *
  * @param  {string} str
- * @returns {array}
+ * @returns {array} array of Selectors
  */
 var parse = function(str) {
   var arr = []; // will include all selector's components
@@ -411,7 +266,7 @@ var parse = function(str) {
     var obj = {};
 
     selector = string.trim(selector);
-    obj['selector'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
+    obj['raw'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
     obj['tag'] = getTag(selector);
 
@@ -431,7 +286,7 @@ var parse = function(str) {
     obj['classes'] = getClasses(selector);
     obj['pseudos'] = getPseudos(selector);
 
-    var nots = getNots(obj['selector']);
+    var nots = getNots(obj['raw']);
     if (nots) {
       obj['nots'] = [];
       for (var j in nots) {
@@ -441,7 +296,7 @@ var parse = function(str) {
 
     obj['attributes'] = getAttributes(selector);
 
-    arr[i] = obj;
+    arr[i] = new Selector(obj);
   }
 
   return arr;
@@ -450,32 +305,196 @@ var parse = function(str) {
 /**
  * var stringify - convert selector's representation as an array into the raw selector as a string
  *
- * @param  {object} obj
+ * @param  {array} arr - array of Selectors
  * @returns {string}
  */
 var stringify = function(arr) {
-  var str = '';
+  var stringifyRecursive = function(arr) {
+    var str = '';
 
-  for (var i in arr) {
-    var selector = arr[i];
+    for (var i in arr) {
+      var selector = arr[i];
 
-    str += selector['selector'];
+      str += selector['raw'];
 
-    var addComma = true;
+      for (var operator in HIERARCHY_OPERATORS) {
+        var hir = HIERARCHY_OPERATORS[operator];
 
-    for (var operator in HIERARCHY_OPERATORS) {
-      var hir = HIERARCHY_OPERATORS[operator];
-
-      if (selector[hir]) {
-        str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
-        str += stringify([selector[hir]]);
-        addComma = false; // do not add comma when handling hierarchy
+        if (selector[hir]) {
+          str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
+          str += stringify([selector[hir]]);
+        }
       }
-    }
 
-    if (addComma) {
       str += ', ';
     }
+
+    return str;
+  };
+
+  var str = stringifyRecursive(arr);
+  if (', ' === str.slice(str.length - 2, str.length)) {
+    str = str.slice(0, str.length - 2); // cut last redundent comma
+  }
+  return str;
+};
+
+
+/**
+ * Selector - constructor of Selector type
+ *
+ * @param  {object} selectorObj
+ * @returns {Selector}
+ */
+function Selector(selectorObj) {
+  for (var prop in selectorObj) {
+    this[prop] = selectorObj[prop];
+  }
+
+  this.stringify = stringify.bind(null, [selectorObj]);
+  this.parse = parse.bind(null, selectorObj.raw);
+};
+
+Selector.parse = parse;
+Selector.stringify = stringify;
+
+module.exports = Selector;
+
+},{"../utils/array":6,"../utils/string":7}],3:[function(require,module,exports){
+var string = require('../utils/string');
+
+/**
+ * var parse - convert inline style string to valid inline style object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
+var parse = function(str) {
+  var obj = {};
+
+  var sets = str.split(';');
+  for (var i in sets) {
+    var set = string.trim(sets[i]);
+    if (!set) {
+      continue;
+    }
+
+    var prop = string.trim(set.split(':')[0]);
+    var val = string.trim(set.split(':')[1]);
+
+    if (prop && val) {
+      obj[prop] = val;
+    }
+  }
+
+  return obj;
+};
+
+/**
+ * var stringify - convert inline style object to valid inline style string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
+var stringify = function(obj) {
+  var str = '';
+
+  for (var prop in obj) {
+    if (!obj.hasOwnProperty(prop)) {
+      continue;
+    }
+
+    var val = obj[prop];
+
+    str += prop + ': ' + val + '; ';
+  }
+
+  return str
+};
+
+module.exports.parse = parse;
+module.exports.stringify = stringify;
+
+},{"../utils/string":7}],4:[function(require,module,exports){
+var string = require('../utils/string');
+
+/**
+ * var parse - convert outline style (css) string to valid outline style (css) object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
+var parse = function(str) {
+  var obj = {};
+
+  var delimitor = Math.random().toString(36).slice(2);
+
+  // trick to split by '{' and '}' but include them in splitted arr. TODO: REGEX IT
+  var arr = str.split('{').join(delimitor + '{').split('}').join('}' + delimitor).split(delimitor);
+  for (var i = 0; i < arr.length; i += 2) {
+    if (i + 1 === arr.length) {
+      continue;
+    }
+
+    var selector = string.trim(string.removeLineBreakers(arr[i]));
+    if (!selector) {
+      continue;
+    }
+
+    obj[selector] = {};
+
+    var rules = string.removeLineBreakers(arr[i + 1]);
+    rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
+
+    var sets = rules.split(';');
+    for (var j in sets) {
+      var set = sets[j];
+
+      var prop = string.trim(set.split(':')[0]);
+      if (!prop) {
+          continue;
+      }
+
+      var val = string.trim(set.split(':')[1]);
+      if (!val) {
+        continue;
+      }
+
+      obj[selector][prop] = val;
+    }
+  }
+
+  return obj;
+};
+
+/**
+ * var stringify - convert outline style (css) object to valid outline style (css) string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
+var stringify = function(obj) {
+  var str = '';
+  for (var selector in obj) {
+    if (!obj.hasOwnProperty(selector)) {
+      continue;
+    }
+
+    var rules = obj[selector];
+
+    str += selector + ' {\n';
+
+    for (var prop in rules) {
+      if (!rules.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      var val = rules[prop];
+
+      str += '\t' + prop + ': ' + val + ';\n';
+    }
+
+    str += '}\n';
   }
 
   return str;
@@ -484,16 +503,16 @@ var stringify = function(arr) {
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/array":6,"../utils/string":7}],5:[function(require,module,exports){
+},{"../utils/string":7}],5:[function(require,module,exports){
 var inline = require('./modules/inline');
 var outline = require('./modules/outline');
-var selector = require('./modules/selector');
+var Selector = require('./modules/Selector');
 
 module.exports.inline = inline;
 module.exports.outline = outline;
-module.exports.selector = selector;
+module.exports.Selector = Selector;
 
-},{"./modules/inline":2,"./modules/outline":3,"./modules/selector":4}],6:[function(require,module,exports){
+},{"./modules/Selector":2,"./modules/inline":3,"./modules/outline":4}],6:[function(require,module,exports){
 /**
  * var includes - return whether provided arr includes provided value in it or not
  *

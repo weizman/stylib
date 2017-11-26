@@ -1,7 +1,7 @@
 {
   "name": "stylib",
 
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "stylib - Vast Library For Style Manipulations",
   "main": "js/stylib.js",
   "scripts": {
@@ -16,7 +16,8 @@
 		"js",
 		"parse",
 		"stringify",
-		"parser"
+		"parser",
+    "selector"
 	],
   "author": "Gal Weizman <weizmangal@gmail.com> (https://github.com/weizman)",
   "license": "MIT",
