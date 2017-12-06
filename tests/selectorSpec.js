@@ -1,5 +1,6 @@
 describe("selector", function() {
-  var Selector = require('../../stylib').Selector;
+  require = require('requiree')(require);
+  var selector = require.dev('../js/modules/selector.js');
 
   /**
    * var selectorify - takes an array of Selectors/objects and straighten them up
@@ -38,7 +39,7 @@ describe("selector", function() {
       var finalObj = obj;
       if (0 !== obj.constructor.toString().indexOf('function Selector')) {
         // selectorify only when obj is not already a Selector instance
-        finalObj = new Selector(obj);
+        finalObj = new selector.Selector(obj);
       }
 
       if (deleteSelectorFuncs) {
@@ -68,23 +69,23 @@ describe("selector", function() {
    * @param {boolean} selectorObjContainsHierarchy whether selector object contains hierarchy or not
    */
   var testSelector = function(selectorObj, selectorStr, selectorObjContainsHierarchy) {
-    var str1 = Selector.stringify(selectorObj);
+    var str1 = selector.stringify(selectorObj);
     var str2 = selectorStr;
 
     expect(str1).toEqual(str2);
 
     var obj1 = selectorify(selectorObj, true);
-    var obj2 = selectorify(Selector.parse(selectorStr), true);
+    var obj2 = selectorify(selector.parse(selectorStr), true);
 
     expect(obj1[0]).toEqual(obj2[0]);
 
     var obj1 = selectorify(selectorObj);
-    var obj2 = selectorify(Selector.parse(selectorStr));
+    var obj2 = selectorify(selector.parse(selectorStr));
 
     // in case selector object contains hierarchy,
-    // must use Selector.stringify to make it work
+    // must use selector.stringify to make it work
     expect(selectorObjContainsHierarchy ?
-      Selector.stringify([selectorObj[0]]) :
+      selector.stringify([selectorObj[0]]) :
       selectorObj[0].raw
     ).toEqual(obj2[0].stringify());
   };

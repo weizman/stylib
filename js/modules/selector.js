@@ -338,7 +338,6 @@ function Selector(selectorObj) {
   this.parse = parse.bind(null, selectorObj.raw);
 };
 
-Selector.parse = parse;
-Selector.stringify = stringify;
-
-module.exports = Selector;
+module.exports._Selector = Selector;
+module.exports.parse = parse;
+module.exports.stringify = stringify;

@@ -16,6 +16,149 @@ var stylib = require('./stylib');
 
 },{"./stylib":5}],2:[function(require,module,exports){
 var string = require('../utils/string');
+
+/**
+ * var parse - convert inline style string to valid inline style object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
+var parse = function(str) {
+  var obj = {};
+
+  var sets = str.split(';');
+  for (var i in sets) {
+    var set = string.trim(sets[i]);
+    if (!set) {
+      continue;
+    }
+
+    var prop = string.trim(set.split(':')[0]);
+    var val = string.trim(set.split(':')[1]);
+
+    if (prop && val) {
+      obj[prop] = val;
+    }
+  }
+
+  return obj;
+};
+
+/**
+ * var stringify - convert inline style object to valid inline style string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
+var stringify = function(obj) {
+  var str = '';
+
+  for (var prop in obj) {
+    if (!obj.hasOwnProperty(prop)) {
+      continue;
+    }
+
+    var val = obj[prop];
+
+    str += prop + ': ' + val + '; ';
+  }
+
+  return str
+};
+
+module.exports.parse = parse;
+module.exports.stringify = stringify;
+
+},{"../utils/string":7}],3:[function(require,module,exports){
+var string = require('../utils/string');
+
+/**
+ * var parse - convert outline style (css) string to valid outline style (css) object
+ *
+ * @param  {string} str
+ * @returns {object}
+ */
+var parse = function(str) {
+  var obj = {};
+
+  var delimitor = Math.random().toString(36).slice(2);
+
+  // trick to split by '{' and '}' but include them in splitted arr. TODO: REGEX IT
+  var arr = str.split('{').join(delimitor + '{').split('}').join('}' + delimitor).split(delimitor);
+  for (var i = 0; i < arr.length; i += 2) {
+    if (i + 1 === arr.length) {
+      continue;
+    }
+
+    var selector = string.trim(string.removeLineBreakers(arr[i]));
+    if (!selector) {
+      continue;
+    }
+
+    obj[selector] = {};
+
+    var rules = string.removeLineBreakers(arr[i + 1]);
+    rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
+
+    var sets = rules.split(';');
+    for (var j in sets) {
+      var set = sets[j];
+
+      var prop = string.trim(set.split(':')[0]);
+      if (!prop) {
+          continue;
+      }
+
+      var val = string.trim(set.split(':')[1]);
+      if (!val) {
+        continue;
+      }
+
+      obj[selector][prop] = val;
+    }
+  }
+
+  return obj;
+};
+
+/**
+ * var stringify - convert outline style (css) object to valid outline style (css) string
+ *
+ * @param  {object} obj
+ * @returns {string}
+ */
+var stringify = function(obj) {
+  var str = '';
+  for (var selector in obj) {
+    if (!obj.hasOwnProperty(selector)) {
+      continue;
+    }
+
+    var rules = obj[selector];
+
+    str += selector + ' {\n';
+
+    for (var prop in rules) {
+      if (!rules.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      var val = rules[prop];
+
+      str += '\t' + prop + ': ' + val + ';\n';
+    }
+
+    str += '}\n';
+  }
+
+  return str;
+};
+
+module.exports.parse = parse;
+module.exports.stringify = stringify;
+
+},{"../utils/string":7}],4:[function(require,module,exports){
+var string = require('../utils/string');
 var array = require('../utils/array');
 
 var  ATTRIBUTES_OPERATORS = {
@@ -355,164 +498,22 @@ function Selector(selectorObj) {
   this.parse = parse.bind(null, selectorObj.raw);
 };
 
-Selector.parse = parse;
-Selector.stringify = stringify;
-
-module.exports = Selector;
-
-},{"../utils/array":6,"../utils/string":7}],3:[function(require,module,exports){
-var string = require('../utils/string');
-
-/**
- * var parse - convert inline style string to valid inline style object
- *
- * @param  {string} str
- * @returns {object}
- */
-var parse = function(str) {
-  var obj = {};
-
-  var sets = str.split(';');
-  for (var i in sets) {
-    var set = string.trim(sets[i]);
-    if (!set) {
-      continue;
-    }
-
-    var prop = string.trim(set.split(':')[0]);
-    var val = string.trim(set.split(':')[1]);
-
-    if (prop && val) {
-      obj[prop] = val;
-    }
-  }
-
-  return obj;
-};
-
-/**
- * var stringify - convert inline style object to valid inline style string
- *
- * @param  {object} obj
- * @returns {string}
- */
-var stringify = function(obj) {
-  var str = '';
-
-  for (var prop in obj) {
-    if (!obj.hasOwnProperty(prop)) {
-      continue;
-    }
-
-    var val = obj[prop];
-
-    str += prop + ': ' + val + '; ';
-  }
-
-  return str
-};
-
+module.exports._Selector = Selector;
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/string":7}],4:[function(require,module,exports){
-var string = require('../utils/string');
+},{"../utils/array":6,"../utils/string":7}],5:[function(require,module,exports){
+require = require('requiree')(require);
 
-/**
- * var parse - convert outline style (css) string to valid outline style (css) object
- *
- * @param  {string} str
- * @returns {object}
- */
-var parse = function(str) {
-  var obj = {};
-
-  var delimitor = Math.random().toString(36).slice(2);
-
-  // trick to split by '{' and '}' but include them in splitted arr. TODO: REGEX IT
-  var arr = str.split('{').join(delimitor + '{').split('}').join('}' + delimitor).split(delimitor);
-  for (var i = 0; i < arr.length; i += 2) {
-    if (i + 1 === arr.length) {
-      continue;
-    }
-
-    var selector = string.trim(string.removeLineBreakers(arr[i]));
-    if (!selector) {
-      continue;
-    }
-
-    obj[selector] = {};
-
-    var rules = string.removeLineBreakers(arr[i + 1]);
-    rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
-
-    var sets = rules.split(';');
-    for (var j in sets) {
-      var set = sets[j];
-
-      var prop = string.trim(set.split(':')[0]);
-      if (!prop) {
-          continue;
-      }
-
-      var val = string.trim(set.split(':')[1]);
-      if (!val) {
-        continue;
-      }
-
-      obj[selector][prop] = val;
-    }
-  }
-
-  return obj;
-};
-
-/**
- * var stringify - convert outline style (css) object to valid outline style (css) string
- *
- * @param  {object} obj
- * @returns {string}
- */
-var stringify = function(obj) {
-  var str = '';
-  for (var selector in obj) {
-    if (!obj.hasOwnProperty(selector)) {
-      continue;
-    }
-
-    var rules = obj[selector];
-
-    str += selector + ' {\n';
-
-    for (var prop in rules) {
-      if (!rules.hasOwnProperty(prop)) {
-        continue;
-      }
-
-      var val = rules[prop];
-
-      str += '\t' + prop + ': ' + val + ';\n';
-    }
-
-    str += '}\n';
-  }
-
-  return str;
-};
-
-module.exports.parse = parse;
-module.exports.stringify = stringify;
-
-},{"../utils/string":7}],5:[function(require,module,exports){
 var inline = require('./modules/inline');
 var outline = require('./modules/outline');
-var Selector = require('./modules/Selector');
+var selector = require('./modules/selector');
 
 module.exports.inline = inline;
 module.exports.outline = outline;
-module.exports.Selector = Selector;
+module.exports.selector = selector;
 
-},{"./modules/Selector":2,"./modules/inline":3,"./modules/outline":4}],6:[function(require,module,exports){
+},{"./modules/inline":2,"./modules/outline":3,"./modules/selector":4,"requiree":8}],6:[function(require,module,exports){
 /**
  * var includes - return whether provided arr includes provided value in it or not
  *
@@ -554,5 +555,106 @@ var removeLineBreakers = function(str) {
 
 module.exports.trim = trim;
 module.exports.removeLineBreakers = removeLineBreakers;
+
+},{}],8:[function(require,module,exports){
+// must be initialized with the desired require function
+// from the module that uses requiree, because the
+// require function that needs to be used must
+// come from the module's scope.
+var requireFunc; // will be initialized with the desired require function
+
+/**
+ * var onAllProps - execute object callback for every property in given object recursivley
+ *
+ * @param  {object} obj   object to iterate
+ * @param  {function} cb  callback to execute for each property
+ * @returns {undefined}
+ */
+var onAllProps = function(obj, cb) {
+  for (var prop in obj) {
+    if (Array.isArray(obj[prop])) {
+      return;
+    }
+
+    if ('object' === typeof obj[prop]) {
+      onAllProps(obj[prop], cb);
+    }
+
+    cb(obj, prop);
+  }
+};
+
+/**
+ * var base - main logic of how to require package in dev/prod mode
+ *
+ * @param  {string} path           path of module to require
+ * @param  {boolean} isDev         whether should dev properties be required as well or not
+ * @returns {module}               module required
+ */
+var base = function(path, isDev) {
+
+  var mod = requireFunc(path);
+
+  onAllProps(mod, function(mod, prop) {
+
+    // prop name starts with '_'? that is the requiree default prefix
+    if ('_' === prop[0]) {
+
+      // is dev? save it noramlly to the module.exports object
+      if (isDev) {
+        mod[prop.replace('_', '')] = mod[prop]
+      }
+
+      // get rid of the old one (the prop with the '_' at the beginning)
+      delete mod[prop];
+    }
+  });
+
+  return mod;
+};
+
+/**
+ * var init - initialize the desired require function to use within requiree
+ *
+ * @param  {function} reqFunc desired require function
+ * @returns {function}        the prod and dev functions used
+ */
+var init = function(reqFunc) {
+  // throw error when @reqFunc is not of type function
+  if ('function' !== typeof reqFunc) {
+    throw 'param @reqFunc must be of type function when initializing requiree'
+  }
+
+  if (!requireFunc) {
+    requireFunc = reqFunc;
+  }
+
+  // this is the true export after requiree has been initialized
+  prod.dev = dev;
+  return prod;
+};
+
+/**
+ * var dev - require package in dev mode
+ *
+ * @param  {string} path           path of module to require
+ * @returns {module}               module required
+ */
+var dev = function(path) {
+  return base(path, true);
+};
+
+/**
+ * var prod - require package in prod mode (normally)
+ *
+ * @param  {string} path           path of module to require
+ * @returns {module}               module required
+ */
+var prod = function(path) {
+  return base(path, false);
+};
+
+
+module.exports = init;
 
 },{}]},{},[1]);

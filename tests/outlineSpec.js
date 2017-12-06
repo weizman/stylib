@@ -1,12 +1,13 @@
 describe("outline", function() {
-  var outline = require('../../stylib').outline;
+  require = require('requiree')(require);
+  var outline = require.dev('../js/modules/outline.js');
 
   /**
    * var removeEmptyStrings - get rid of empty strings
    * in order to execute successful comparison
    *
    * @param  {string} str
-   * @returns {string} 
+   * @returns {string}
    */
   var removeEmptyStrings = function(str) {
     return str.replace(/(\r\n|\n|\r)/gm, '').split(' ').join('').split('\t').join('');
