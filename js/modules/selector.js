@@ -59,7 +59,7 @@ var getRegexMatches = function(str, rgx, onmatch) {
  * @returns {string}
  */
 var getTag = function(selector) {
-  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || '*';
+  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || null;
 };
 
 /**
@@ -251,7 +251,7 @@ var parse = function(str) {
     selector = string.trim(selector);
     obj['raw'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
-    obj['tag'] = getTag(selector);
+    obj['tag'] = getTag(selector) || '*';
 
     var ret = splitByHierarchy(selector);
     if (ret) {
