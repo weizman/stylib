@@ -23,7 +23,8 @@ var NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
 var WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
 var ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
 var CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-var PSEUDOE_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+var PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+var PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 
 /**
  * var getRegexMatches - get string and regular expression and return matches
@@ -101,18 +102,38 @@ var getClasses = function(selector) {
 };
 
 /**
- * var getPseudos - get selector string and extract the pseudos from it
+ * var getPseudoElements - get selector string and extract the pseudo elements from it
  *
  * @param  {string} selector
  * @returns {array}
  */
-var getPseudos = function(selector) {
-  // following might include pseudo selector regex as well. get rid of before matching
+var getPseudoElements = function(selector) {
+  // following might include pseudo class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
 
-  var matches = getRegexMatches(selector, PSEUDOE_REGEX, function(match) {
+  var matches = getRegexMatches(selector, PSEUDOE_ELEMENT_REGEX, function(match) {
+    return match.substr(2, match.length); // get rid of '::'
+  });
+
+  return matches;
+};
+
+/**
+ * var getPseudoClasses - get selector string and extract the pseudo classes from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
+var getPseudoClasses = function(selector) {
+  // following might include pseudo class selector regex as well. get rid of before matching
+  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+  selector = selector.replace(PSEUDOE_ELEMENT_REGEX, '');
+
+  var matches = getRegexMatches(selector, PSEUDOE_CLASS_REGEX, function(match) {
     return match.substr(1, match.length); // get rid of ':'
   });
 
@@ -267,7 +288,8 @@ var parse = function(str) {
 
     obj['ids'] = getIds(selector);
     obj['classes'] = getClasses(selector);
-    obj['pseudos'] = getPseudos(selector);
+    obj['pseudoElements'] = getPseudoElements(selector);
+    obj['pseudoClasses'] = getPseudoClasses(selector);
 
     var nots = getNots(obj['raw']);
     if (nots) {

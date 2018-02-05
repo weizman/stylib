@@ -96,7 +96,8 @@ describe("selector", function() {
       'attributes' : [],
       'classes' : [],
       'ids' : [],
-      'pseudos' : [],
+      'pseudoClasses' : [],
+      'pseudoElements' : [],
       'raw' : '*',
       'tag' : '*'
     }
@@ -108,7 +109,8 @@ describe("selector", function() {
       'attributes' : [],
       'classes' : ['CLASS'],
       'ids' : ['ID'],
-      'pseudos' : [],
+      'pseudoClasses' : [],
+      'pseudoElements' : [],
       'raw' : '#ID.CLASS',
       'tag' : '*'
     }
@@ -120,20 +122,23 @@ describe("selector", function() {
       'attributes' : [],
       'classes' : [],
       'ids' : [],
-      'pseudos' : ['hover', 'nth-child(3n)', 'wow'],
+      'pseudoClasses' : ['hover', 'nth-child(3n)'],
+      'pseudoElements' : ['wow'],
       'raw' : 'P:hover:nth-child(3n)::wow',
       'tag' : 'P',
       'directChild' : {
         'attributes' : [],
         'classes' : [],
         'ids' : ['qq'],
-        'pseudos' : [],
+        'pseudoClasses' : [],
+        'pseudoElements' : [],
         'nots' : [
           {
             'attributes' : [],
             'classes' : [],
             'ids' : [],
-            'pseudos' : [],
+            'pseudoClasses' : [],
+            'pseudoElements' : [],
             'raw' : 'SPAN',
             'tag' : 'SPAN'
           },
@@ -156,7 +161,8 @@ describe("selector", function() {
             ],
             'classes' : ['z', 'a'],
             'ids' : [],
-            'pseudos' : [],
+            'pseudoClasses' : [],
+            'pseudoElements' : [],
             'raw' : '*.z.a[style*="{1}"][xxx]',
             'tag' : '*'
           }
@@ -167,7 +173,8 @@ describe("selector", function() {
           'attributes' : [],
           'classes' : ['sss'],
           'ids' : [],
-          'pseudos' : [],
+          'pseudoClasses' : [],
+          'pseudoElements' : [],
           'raw' : 'P.sss',
           'tag' : 'P'
         }
@@ -175,7 +182,7 @@ describe("selector", function() {
     }
   ];
 
-  var selectorStr4 = 'STYLE:empty.class1#id2[style="aaa:click"][style][style^=\'aaa\']';
+  var selectorStr4 = 'STYLE#id2.class1:empty[style="aaa:click"][style^=\'aaa\'][style]';
   var selectorObj4 = [
     {
       'attributes' : [
@@ -203,8 +210,9 @@ describe("selector", function() {
       ],
       'classes' : ['class1'],
       'ids' : ['id2'],
-      'pseudos' : ['empty'],
-      'raw' : 'STYLE:empty.class1#id2[style="aaa:click"][style][style^=\'aaa\']',
+      'pseudoClasses' : ['empty'],
+      'pseudoElements' : [],
+      'raw' : 'STYLE#id2.class1:empty[style="aaa:click"][style^=\'aaa\'][style]',
       'tag' : 'STYLE'
     }
   ];
