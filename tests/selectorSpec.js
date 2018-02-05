@@ -98,6 +98,7 @@ describe("selector", function() {
       'ids' : [],
       'pseudoClasses' : [],
       'pseudoElements' : [],
+      'nots' : [],
       'raw' : '*',
       'tag' : '*'
     }
@@ -111,6 +112,7 @@ describe("selector", function() {
       'ids' : ['ID'],
       'pseudoClasses' : [],
       'pseudoElements' : [],
+      'nots' : [],
       'raw' : '#ID.CLASS',
       'tag' : '*'
     }
@@ -124,6 +126,7 @@ describe("selector", function() {
       'ids' : [],
       'pseudoClasses' : ['hover', 'nth-child(3n)'],
       'pseudoElements' : ['wow'],
+      'nots' : [],
       'raw' : 'P:hover:nth-child(3n)::wow',
       'tag' : 'P',
       'directChild' : {
@@ -139,6 +142,7 @@ describe("selector", function() {
             'ids' : [],
             'pseudoClasses' : [],
             'pseudoElements' : [],
+            'nots' : [],
             'raw' : 'SPAN',
             'tag' : 'SPAN'
           },
@@ -163,6 +167,7 @@ describe("selector", function() {
             'ids' : [],
             'pseudoClasses' : [],
             'pseudoElements' : [],
+            'nots' : [],
             'raw' : '*.z.a[style*="{1}"][xxx]',
             'tag' : '*'
           }
@@ -175,6 +180,7 @@ describe("selector", function() {
           'ids' : [],
           'pseudoClasses' : [],
           'pseudoElements' : [],
+          'nots' : [],
           'raw' : 'P.sss',
           'tag' : 'P'
         }
@@ -212,6 +218,7 @@ describe("selector", function() {
       'ids' : ['id2'],
       'pseudoClasses' : ['empty'],
       'pseudoElements' : [],
+      'nots' : [],
       'raw' : 'STYLE#id2.class1:empty[style="aaa:click"][style^=\'aaa\'][style]',
       'tag' : 'STYLE'
     }

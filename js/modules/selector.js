@@ -291,12 +291,10 @@ var parse = function(str) {
     obj['pseudoElements'] = getPseudoElements(selector);
     obj['pseudoClasses'] = getPseudoClasses(selector);
 
+    obj['nots'] = [];
     var nots = getNots(obj['raw']);
-    if (nots) {
-      obj['nots'] = [];
-      for (var j in nots) {
-        obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
-      }
+    for (var j in nots) {
+      obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
     }
 
     obj['attributes'] = getAttributes(selector);
