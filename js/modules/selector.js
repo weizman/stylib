@@ -1,5 +1,4 @@
 var string = require('../utils/string');
-var array = require('../utils/array');
 
 var  ATTRIBUTES_OPERATORS = {
   '' : 'present',
@@ -192,7 +191,7 @@ var getAttributes = function(selector) {
     } else {
       operator = attr.slice(eqSignPos - 1, eqSignPos + 1); // in case operator is like '{X}='
 
-      if (!array.includes(Object.keys(ATTRIBUTES_OPERATORS), operator)) {
+      if (!Object.keys(ATTRIBUTES_OPERATORS).includes(operator)) {
         operator = '=';
       }
 
@@ -226,7 +225,7 @@ var splitByHierarchy = function(selector) {
     var curChar = parts[i]; // possibly an operator
     var afrChar = parts[i + 1];
 
-    if (array.includes(Object.keys(HIERARCHY_OPERATORS), curChar)) {
+    if (Object.keys(HIERARCHY_OPERATORS).includes(curChar)) {
       var operator = curChar; // curChar is an operator
 
       // in case operator is not a whitespace, it must be between whitespaces inside array
@@ -235,8 +234,8 @@ var splitByHierarchy = function(selector) {
         return [parts.slice(0, i + 1).join(''), HIERARCHY_OPERATORS[operator], parts.slice(i + 2).join('')];
       }
 
-      var isBfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
-      var isAfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
+      var isBfrCharAnOperator = Object.keys(HIERARCHY_OPERATORS).includes(bfrChar);
+      var isAfrCharAnOperator = Object.keys(HIERARCHY_OPERATORS).includes(afrChar)
 
       // in case operator is simply a whitespace and not the real operator, continue
       if (' ' === operator && (isBfrCharAnOperator || isAfrCharAnOperator)) {
