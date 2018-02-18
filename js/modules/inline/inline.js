@@ -1,4 +1,4 @@
-var string = require('../utils/string');
+var string = require('../../utils/string');
 
 /**
  * var parse - convert inline style string to valid inline style object

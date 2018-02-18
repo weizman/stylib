@@ -1,6 +1,6 @@
-var string = require('../utils/string');
+var string = require('../../utils/string');
 
-var  ATTRIBUTES_OPERATORS = {
+ATTRIBUTES_OPERATORS = {
   '' : 'present',
   '=' : 'equals',
   '*=' : 'contains',
@@ -10,20 +10,20 @@ var  ATTRIBUTES_OPERATORS = {
   '|=' : 'hyphenated'
 };
 
-var HIERARCHY_OPERATORS = {
+HIERARCHY_OPERATORS = {
   ' ' : 'descendant',
   '>' : 'directChild',
   '~' : 'generalSibling',
   '+' : 'adjacentSibling'
 };
 
-var PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
-var NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
-var WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
-var ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-var CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-var PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
-var PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
+NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
+WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
+ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 
 /**
  * var getRegexMatches - get string and regular expression and return matches
@@ -33,7 +33,7 @@ var PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
  * @param  {function} [onmatch] to run on each match
  * @returns {array}
  */
-var getRegexMatches = function(str, rgx, onmatch) {
+getRegexMatches = function(str, rgx, onmatch) {
   rgx = new RegExp(rgx);
 
   onmatch = onmatch || function(match) {
@@ -58,7 +58,7 @@ var getRegexMatches = function(str, rgx, onmatch) {
  * @param  {string} selector
  * @returns {string}
  */
-var getTag = function(selector) {
+getTag = function(selector) {
   return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || null;
 };
 
@@ -68,7 +68,7 @@ var getTag = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getIds = function(selector) {
+getIds = function(selector) {
   // following might include id selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
@@ -87,7 +87,7 @@ var getIds = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getClasses = function(selector) {
+getClasses = function(selector) {
   // following might include class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
@@ -106,7 +106,7 @@ var getClasses = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getPseudoElements = function(selector) {
+getPseudoElements = function(selector) {
   // following might include pseudo class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
@@ -125,7 +125,7 @@ var getPseudoElements = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getPseudoClasses = function(selector) {
+getPseudoClasses = function(selector) {
   // following might include pseudo class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
@@ -145,7 +145,7 @@ var getPseudoClasses = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getNots = function(selector) {
+getNots = function(selector) {
   var matches = getRegexMatches(selector, PSEUDOE_NOT_REGEX, function(match) {
     return match.slice(5, match.length); // get rid of ':not('
   });
@@ -163,7 +163,7 @@ var getNots = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getAttributes = function(selector) {
+getAttributes = function(selector) {
   // following might include attributes selector regex as well. get rid of before matching
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
 
@@ -217,7 +217,7 @@ var getAttributes = function(selector) {
  * @param  {string} selector
  * @returns {array} [selector before hierarchy operator occurence, kind of hierarchy, selector after hierarchy operator occurence]
  */
-var splitByHierarchy = function(selector) {
+splitByHierarchy = function(selector) {
   var parts = selector.split(/( )/); // split by whitespaces but include them in splitted arr
 
   for (var i = 0; i < parts.length; i++) {
@@ -249,146 +249,12 @@ var splitByHierarchy = function(selector) {
   return null;
 };
 
-/**
- * var parse - convert selector string into the selector's representation as an array
- *
- * @param  {string} str
- * @returns {array} array of Selectors
- */
-var parse = function(str) {
-  var arr = []; // will include all selector's components
-
-  var selectors = str.split(','); // ',' sepperates between different general sub selectors
-  for (var i in selectors) {
-    var selector = selectors[i];
-
-    if (!selector) {
-      continue;
-    }
-
-    var obj = {};
-
-    selector = string.trim(selector);
-    obj['raw'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
-
-    obj['tag'] = getTag(selector) || '*';
-
-    var ret = splitByHierarchy(selector);
-    if (ret) {
-      var bfrSelector = ret[0];
-      var hierarchyKind = ret[1];
-      var afrSelector = ret[2];
-
-      obj[hierarchyKind] = parse(afrSelector)[0]; // parse the next hierarchy component
-
-      // only the selector of before the operator occurence should be extracted for information
-      selector = bfrSelector;
-    }
-
-    obj['ids'] = getIds(selector);
-    obj['classes'] = getClasses(selector);
-    obj['pseudoElements'] = getPseudoElements(selector);
-    obj['pseudoClasses'] = getPseudoClasses(selector);
-
-    obj['nots'] = [];
-    var nots = getNots(obj['raw']);
-    for (var j in nots) {
-      obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
-    }
-
-    obj['attributes'] = getAttributes(selector);
-
-    arr[i] = new Selector(obj);
-  }
-
-  return arr;
-};
-
-/**
- * var stringify - convert selector's representation as an array into the raw selector as a string
- *
- * @param  {array} arr - array of Selectors
- * @returns {string}
- */
-var stringify = function(arr) {
-  var constructRawSelector = function(selector) {
-    var str = '';
-
-    str += getTag(selector['raw']) || '';
-
-    for (var i in selector['ids']) {
-      str += '#' + selector['ids'][i];
-    }
-
-    for (var i in selector['classes']) {
-      str += '.' + selector['classes'][i];
-    }
-
-    for (var i in selector['pseudoClasses']) {
-      str += ':' + selector['pseudoClasses'][i];
-    }
-
-    for (var i in selector['pseudoElements']) {
-      str += '::' + selector['pseudoElements'][i];
-    }
-
-    for (var i in selector['attributes']) {
-      str += '[' + selector['attributes'][i]['raw'] + ']';
-    }
-
-    for (var i in selector['nots']) {
-      str += ':not(' + constructRawSelector(selector['nots'][i]) + ')';
-    }
-
-    return str;
-  };
-
-  var stringifyRecursive = function(arr) {
-    var str = '';
-
-    for (var i in arr) {
-      var selector = arr[i];
-
-      str += constructRawSelector(selector);
-
-      for (var operator in HIERARCHY_OPERATORS) {
-        var hir = HIERARCHY_OPERATORS[operator];
-
-        if (selector[hir]) {
-          str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
-          str += stringify([selector[hir]]);
-        }
-      }
-
-      str += ', ';
-    }
-
-    return str;
-  };
-
-  var str = stringifyRecursive(arr);
-  if (', ' === str.slice(str.length - 2, str.length)) {
-    str = str.slice(0, str.length - 2); // cut last redundent comma
-  }
-  return str;
-};
-
-
-/**
- * Selector - constructor of Selector type
- *
- * @param  {object} selectorObj
- * @returns {Selector}
- */
-function Selector(selectorObj) {
-  for (var prop in selectorObj) {
-    this[prop] = selectorObj[prop];
-  }
-
-  this.stringify = stringify.bind(null, [selectorObj]);
-  this.parse = parse.bind(null, selectorObj.raw);
-};
-
-module.exports._Selector = Selector;
-module.exports.parse = parse;
-module.exports.stringify = stringify;
+module.exports.HIERARCHY_OPERATORS = HIERARCHY_OPERATORS;
+module.exports.getTag = getTag;
+module.exports.getIds = getIds;
+module.exports.getClasses = getClasses;
+module.exports.getPseudoElements = getPseudoElements;
+module.exports.getPseudoClasses = getPseudoClasses;
+module.exports.getNots = getNots;
+module.exports.getAttributes = getAttributes;
+module.exports.splitByHierarchy = splitByHierarchy;

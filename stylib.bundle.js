@@ -14,8 +14,8 @@ var stylib = require('./stylib');
   }
 }(window, document));
 
-},{"./stylib":5}],2:[function(require,module,exports){
-var string = require('../utils/string');
+},{"./stylib":6}],2:[function(require,module,exports){
+var string = require('../../utils/string');
 
 /**
  * var parse - convert inline style string to valid inline style object
@@ -69,8 +69,8 @@ var stringify = function(obj) {
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/string":7}],3:[function(require,module,exports){
-var string = require('../utils/string');
+},{"../../utils/string":7}],3:[function(require,module,exports){
+var string = require('../../utils/string');
 
 /**
  * var parse - convert outline style (css) string to valid outline style (css) object
@@ -157,11 +157,10 @@ var stringify = function(obj) {
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/string":7}],4:[function(require,module,exports){
-var string = require('../utils/string');
-var array = require('../utils/array');
+},{"../../utils/string":7}],4:[function(require,module,exports){
+var string = require('../../utils/string');
 
-var  ATTRIBUTES_OPERATORS = {
+ATTRIBUTES_OPERATORS = {
   '' : 'present',
   '=' : 'equals',
   '*=' : 'contains',
@@ -171,19 +170,20 @@ var  ATTRIBUTES_OPERATORS = {
   '|=' : 'hyphenated'
 };
 
-var HIERARCHY_OPERATORS = {
+HIERARCHY_OPERATORS = {
   ' ' : 'descendant',
   '>' : 'directChild',
   '~' : 'generalSibling',
   '+' : 'adjacentSibling'
 };
 
-var PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
-var NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
-var WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
-var ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-var CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-var PSEUDOE_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
+NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
+WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
+ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 
 /**
  * var getRegexMatches - get string and regular expression and return matches
@@ -193,7 +193,7 @@ var PSEUDOE_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
  * @param  {function} [onmatch] to run on each match
  * @returns {array}
  */
-var getRegexMatches = function(str, rgx, onmatch) {
+getRegexMatches = function(str, rgx, onmatch) {
   rgx = new RegExp(rgx);
 
   onmatch = onmatch || function(match) {
@@ -218,8 +218,8 @@ var getRegexMatches = function(str, rgx, onmatch) {
  * @param  {string} selector
  * @returns {string}
  */
-var getTag = function(selector) {
-  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || '*';
+getTag = function(selector) {
+  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || null;
 };
 
 /**
@@ -228,7 +228,7 @@ var getTag = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getIds = function(selector) {
+getIds = function(selector) {
   // following might include id selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
@@ -247,7 +247,7 @@ var getIds = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getClasses = function(selector) {
+getClasses = function(selector) {
   // following might include class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
@@ -261,18 +261,38 @@ var getClasses = function(selector) {
 };
 
 /**
- * var getPseudos - get selector string and extract the pseudos from it
+ * var getPseudoElements - get selector string and extract the pseudo elements from it
  *
  * @param  {string} selector
  * @returns {array}
  */
-var getPseudos = function(selector) {
-  // following might include pseudo selector regex as well. get rid of before matching
+getPseudoElements = function(selector) {
+  // following might include pseudo class selector regex as well. get rid of before matching
   selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
   selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
 
-  var matches = getRegexMatches(selector, PSEUDOE_REGEX, function(match) {
+  var matches = getRegexMatches(selector, PSEUDOE_ELEMENT_REGEX, function(match) {
+    return match.substr(2, match.length); // get rid of '::'
+  });
+
+  return matches;
+};
+
+/**
+ * var getPseudoClasses - get selector string and extract the pseudo classes from it
+ *
+ * @param  {string} selector
+ * @returns {array}
+ */
+getPseudoClasses = function(selector) {
+  // following might include pseudo class selector regex as well. get rid of before matching
+  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
+  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+  selector = selector.replace(PSEUDOE_ELEMENT_REGEX, '');
+
+  var matches = getRegexMatches(selector, PSEUDOE_CLASS_REGEX, function(match) {
     return match.substr(1, match.length); // get rid of ':'
   });
 
@@ -285,7 +305,7 @@ var getPseudos = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getNots = function(selector) {
+getNots = function(selector) {
   var matches = getRegexMatches(selector, PSEUDOE_NOT_REGEX, function(match) {
     return match.slice(5, match.length); // get rid of ':not('
   });
@@ -303,7 +323,7 @@ var getNots = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-var getAttributes = function(selector) {
+getAttributes = function(selector) {
   // following might include attributes selector regex as well. get rid of before matching
   selector = selector.replace(PSEUDOE_NOT_REGEX, '');
 
@@ -331,7 +351,7 @@ var getAttributes = function(selector) {
     } else {
       operator = attr.slice(eqSignPos - 1, eqSignPos + 1); // in case operator is like '{X}='
 
-      if (!array.includes(Object.keys(ATTRIBUTES_OPERATORS), operator)) {
+      if (!Object.keys(ATTRIBUTES_OPERATORS).includes(operator)) {
         operator = '=';
       }
 
@@ -357,7 +377,7 @@ var getAttributes = function(selector) {
  * @param  {string} selector
  * @returns {array} [selector before hierarchy operator occurence, kind of hierarchy, selector after hierarchy operator occurence]
  */
-var splitByHierarchy = function(selector) {
+splitByHierarchy = function(selector) {
   var parts = selector.split(/( )/); // split by whitespaces but include them in splitted arr
 
   for (var i = 0; i < parts.length; i++) {
@@ -365,7 +385,7 @@ var splitByHierarchy = function(selector) {
     var curChar = parts[i]; // possibly an operator
     var afrChar = parts[i + 1];
 
-    if (array.includes(Object.keys(HIERARCHY_OPERATORS), curChar)) {
+    if (Object.keys(HIERARCHY_OPERATORS).includes(curChar)) {
       var operator = curChar; // curChar is an operator
 
       // in case operator is not a whitespace, it must be between whitespaces inside array
@@ -374,8 +394,8 @@ var splitByHierarchy = function(selector) {
         return [parts.slice(0, i + 1).join(''), HIERARCHY_OPERATORS[operator], parts.slice(i + 2).join('')];
       }
 
-      var isBfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), bfrChar);
-      var isAfrCharAnOperator = array.includes(Object.keys(HIERARCHY_OPERATORS), afrChar);
+      var isBfrCharAnOperator = Object.keys(HIERARCHY_OPERATORS).includes(bfrChar);
+      var isAfrCharAnOperator = Object.keys(HIERARCHY_OPERATORS).includes(afrChar)
 
       // in case operator is simply a whitespace and not the real operator, continue
       if (' ' === operator && (isBfrCharAnOperator || isAfrCharAnOperator)) {
@@ -387,6 +407,35 @@ var splitByHierarchy = function(selector) {
   }
 
   return null;
+};
+
+module.exports.HIERARCHY_OPERATORS = HIERARCHY_OPERATORS;
+module.exports.getTag = getTag;
+module.exports.getIds = getIds;
+module.exports.getClasses = getClasses;
+module.exports.getPseudoElements = getPseudoElements;
+module.exports.getPseudoClasses = getPseudoClasses;
+module.exports.getNots = getNots;
+module.exports.getAttributes = getAttributes;
+module.exports.splitByHierarchy = splitByHierarchy;
+
+},{"../../utils/string":7}],5:[function(require,module,exports){
+var string = require('../../utils/string');
+var parser = require('./parser.js');
+
+/**
+ * Selector - constructor of Selector type
+ *
+ * @param  {object} selectorObj
+ * @returns {Selector}
+ */
+function Selector(selectorObj) {
+  for (var prop in selectorObj) {
+    this[prop] = selectorObj[prop];
+  }
+
+  this.stringify = stringify.bind(null, [selectorObj]);
+  this.parse = parse.bind(null, selectorObj.raw);
 };
 
 /**
@@ -411,9 +460,9 @@ var parse = function(str) {
     selector = string.trim(selector);
     obj['raw'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
 
-    obj['tag'] = getTag(selector);
+    obj['tag'] = parser.getTag(selector) || '*';
 
-    var ret = splitByHierarchy(selector);
+    var ret = parser.splitByHierarchy(selector);
     if (ret) {
       var bfrSelector = ret[0];
       var hierarchyKind = ret[1];
@@ -425,19 +474,18 @@ var parse = function(str) {
       selector = bfrSelector;
     }
 
-    obj['ids'] = getIds(selector);
-    obj['classes'] = getClasses(selector);
-    obj['pseudos'] = getPseudos(selector);
+    obj['ids'] = parser.getIds(selector);
+    obj['classes'] = parser.getClasses(selector);
+    obj['pseudoElements'] = parser.getPseudoElements(selector);
+    obj['pseudoClasses'] = parser.getPseudoClasses(selector);
 
-    var nots = getNots(obj['raw']);
-    if (nots) {
-      obj['nots'] = [];
-      for (var j in nots) {
-        obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
-      }
+    obj['nots'] = [];
+    var nots = parser.getNots(obj['raw']);
+    for (var j in nots) {
+      obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
     }
 
-    obj['attributes'] = getAttributes(selector);
+    obj['attributes'] = parser.getAttributes(selector);
 
     arr[i] = new Selector(obj);
   }
@@ -452,16 +500,48 @@ var parse = function(str) {
  * @returns {string}
  */
 var stringify = function(arr) {
+  var constructRawSelector = function(selector) {
+    var str = '';
+
+    str += parser.getTag(selector['raw']) || '';
+
+    for (var i in selector['ids']) {
+      str += '#' + selector['ids'][i];
+    }
+
+    for (var i in selector['classes']) {
+      str += '.' + selector['classes'][i];
+    }
+
+    for (var i in selector['pseudoClasses']) {
+      str += ':' + selector['pseudoClasses'][i];
+    }
+
+    for (var i in selector['pseudoElements']) {
+      str += '::' + selector['pseudoElements'][i];
+    }
+
+    for (var i in selector['attributes']) {
+      str += '[' + selector['attributes'][i]['raw'] + ']';
+    }
+
+    for (var i in selector['nots']) {
+      str += ':not(' + constructRawSelector(selector['nots'][i]) + ')';
+    }
+
+    return str;
+  };
+
   var stringifyRecursive = function(arr) {
     var str = '';
 
     for (var i in arr) {
       var selector = arr[i];
 
-      str += selector['raw'];
+      str += constructRawSelector(selector);
 
-      for (var operator in HIERARCHY_OPERATORS) {
-        var hir = HIERARCHY_OPERATORS[operator];
+      for (var operator in parser.HIERARCHY_OPERATORS) {
+        var hir = parser.HIERARCHY_OPERATORS[operator];
 
         if (selector[hir]) {
           str += (' ' + operator + ' ').replace('   ', ' '); // in case operator is whitespace
@@ -482,57 +562,22 @@ var stringify = function(arr) {
   return str;
 };
 
-
-/**
- * Selector - constructor of Selector type
- *
- * @param  {object} selectorObj
- * @returns {Selector}
- */
-function Selector(selectorObj) {
-  for (var prop in selectorObj) {
-    this[prop] = selectorObj[prop];
-  }
-
-  this.stringify = stringify.bind(null, [selectorObj]);
-  this.parse = parse.bind(null, selectorObj.raw);
-};
-
 module.exports._Selector = Selector;
 module.exports.parse = parse;
 module.exports.stringify = stringify;
 
-},{"../utils/array":6,"../utils/string":7}],5:[function(require,module,exports){
+},{"../../utils/string":7,"./parser.js":4}],6:[function(require,module,exports){
 require = require('requiree')(require);
 
-var inline = require('./modules/inline');
-var outline = require('./modules/outline');
-var selector = require('./modules/selector');
+var inline = require('./modules/inline/inline.js');
+var outline = require('./modules/outline/outline.js');
+var selector = require('./modules/selector/selector.js');
 
 module.exports.inline = inline;
 module.exports.outline = outline;
 module.exports.selector = selector;
 
-},{"./modules/inline":2,"./modules/outline":3,"./modules/selector":4,"requiree":8}],6:[function(require,module,exports){
-/**
- * var includes - return whether provided arr includes provided value in it or not
- *
- * @param  {array} arr
- * @param  {*} search
- * @param  {number} [start] index to start search from in arr
- * @returns {boolean}
- */
-var includes = function(arr, search, start) {
-  if ('number' !== typeof start) {
-     start = 0;
-   }
-
-   return -1 !== arr.indexOf(search, start);
-};
-
-module.exports.includes = includes;
-
-},{}],7:[function(require,module,exports){
+},{"./modules/inline/inline.js":2,"./modules/outline/outline.js":3,"./modules/selector/selector.js":5,"requiree":8}],7:[function(require,module,exports){
 /**
  * var trim - get string and return it trimmed (no whitespaces at the beginning/end)
  *

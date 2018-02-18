@@ -1,20 +1,21 @@
 describe("selector", function() {
   require = require('requiree')(require);
-  var selector = require.dev('../js/modules/selector.js');
+  var selector = require.dev('../js/modules/selector/selector.js');
 
   /**
    * var selectorify - takes an array of Selectors/objects and straighten them up
    * in order to perform comparison on them after
    *
    * @param  {array} arr array of Selectors/objects
+   * @param {array} ignoreProps array of props to ignore when comparing objects
    * @returns {array} when all objects are selectorified
    */
-  var selectorify = function(arr, deleteSelectorFuncs) {
+  var selectorify = function(arr, ignoreProps) {
     var selectorifyRecursive = function(obj) {
       for (var i in obj) {
         var value = obj[i];
 
-        if (!value || 'object' !== typeof value) {
+        if (!value || 'object' !== typeof value || 'parent' === i) {
           // null? undefined? primitive? no need to manipulate
           continue;
         }
@@ -42,10 +43,10 @@ describe("selector", function() {
         finalObj = new selector.Selector(obj);
       }
 
-      if (deleteSelectorFuncs) {
-        // no need comparing functions in tests of objects
+      if (ignoreProps) {
         delete finalObj.parse;
         delete finalObj.stringify;
+        delete finalObj.parent;
       }
 
       return finalObj;

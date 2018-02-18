@@ -1,4 +1,4 @@
-var string = require('../utils/string');
+var string = require('../../utils/string');
 
 /**
  * var parse - convert outline style (css) string to valid outline style (css) object
