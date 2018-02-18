@@ -311,13 +311,45 @@ var parse = function(str) {
  * @returns {string}
  */
 var stringify = function(arr) {
+  var constructRawSelector = function(selector) {
+    var str = '';
+
+    str += getTag(selector['raw']) || '';
+
+    for (var i in selector['ids']) {
+      str += '#' + selector['ids'][i];
+    }
+
+    for (var i in selector['classes']) {
+      str += '.' + selector['classes'][i];
+    }
+
+    for (var i in selector['pseudoClasses']) {
+      str += ':' + selector['pseudoClasses'][i];
+    }
+
+    for (var i in selector['pseudoElements']) {
+      str += '::' + selector['pseudoElements'][i];
+    }
+
+    for (var i in selector['attributes']) {
+      str += '[' + selector['attributes'][i]['raw'] + ']';
+    }
+
+    for (var i in selector['nots']) {
+      str += ':not(' + constructRawSelector(selector['nots'][i]) + ')';
+    }
+
+    return str;
+  };
+
   var stringifyRecursive = function(arr) {
     var str = '';
 
     for (var i in arr) {
       var selector = arr[i];
 
-      str += selector['raw'];
+      str += constructRawSelector(selector);
 
       for (var operator in HIERARCHY_OPERATORS) {
         var hir = HIERARCHY_OPERATORS[operator];
