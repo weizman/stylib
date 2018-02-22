@@ -36,8 +36,7 @@ var parse = function(str) {
     var obj = {};
 
     selector = string.trim(selector);
-    obj['raw'] = selector.split(' ')[0]; // sub selector hierarchy components are separated by ' '
-
+    obj['raw'] = getRaw(selector);
     obj['tag'] = parser.getTag(selector) || '*';
 
     var ret = parser.splitByHierarchy(selector);

@@ -53,6 +53,22 @@ getRegexMatches = function(str, rgx, onmatch) {
 };
 
 /**
+ * var getRaw - get selector string and extract the raw selector from it
+ *
+ * @param  {string} selector
+ * @returns {string}
+ */
+getRaw = function(selector) {
+  // following regexs matches might contain whitespaces that should be ignored when trying to extract raw selector
+  getRegexMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX], function(match) {
+    selector = selector.replace(match, match.split(' ').join('TEMP_DELIMITER'));
+  });
+
+  // sub selector hierarchy components are separated by ' '
+  return selector.split(' ')[0].split('TEMP_DELIMITER').join(' ');
+};
+
+/**
  * var getTag - get selector string and extract the tag from it
  *
  * @param  {string} selector
