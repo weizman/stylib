@@ -26,30 +26,55 @@ PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 
 /**
- * var getRegexMatches - get string and regular expression and return matches
+ * var getRegexMatches - get string and regular expressions and return matches
  *
  * @param  {string} str
- * @param  {RegExp} rgx
+ * @param  {array} rgxs array of type RegExp
  * @param  {function} [onmatch] to run on each match
  * @returns {array}
  */
-getRegexMatches = function(str, rgx, onmatch) {
-  rgx = new RegExp(rgx);
-
+getRegexMatches = function(str, rgxs, onmatch) {
   onmatch = onmatch || function(match) {
     return match;
   };
 
   var matches = [];
 
-  var res = rgx.exec(str);
-  while (res) {
-    res = onmatch(res[0]);
-    matches.push(res);
-    res = rgx.exec(str);
+  for (var i in rgxs) {
+    var rgx = new RegExp(rgxs[i]);
+    var res = rgx.exec(str);
+
+    while (res) {
+      res = onmatch(res[0]);
+      matches.push(res);
+      res = rgx.exec(str);
+    }
   }
 
   return matches;
+};
+
+/**
+ * getRidOfMatches - get regexs and remove matches occurences from provided string
+ *
+ * @param  {string} str  to find in matches
+ * @param  {array} rgxs to match in provided string
+ * @returns {str}      after manipulations
+ */
+getRidOfMatches = function(str, rgxs) {
+  for (var i in rgxs) {
+    var rgx = rgxs[i];
+
+    getRegexMatches(str, [rgx], function(match) {
+      if (PSEUDOE_NOT_REGEX === rgx) {
+        match += ')'; // fix logic issue in the not regex
+      }
+
+      str = str.replace(match, '');
+    });
+  }
+
+  return str;
 };
 
 /**
@@ -75,7 +100,7 @@ getRaw = function(selector) {
  * @returns {string}
  */
 getTag = function(selector) {
-  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0]) || null;
+  return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0].split('[')[0]) || null;
 };
 
 /**
@@ -86,12 +111,10 @@ getTag = function(selector) {
  */
 getIds = function(selector) {
   // following might include id selector regex as well. get rid of before matching
-  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+  selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX]);
 
-  var matches = getRegexMatches(selector, ID_REGEX, function(match) {
-    return match.substr(1, match.length); // get rid of '#'
+  var matches = getRegexMatches(selector, [ID_REGEX], function(match) {
+    return match.replace('#', '');
   });
 
   return matches;
@@ -105,12 +128,10 @@ getIds = function(selector) {
  */
 getClasses = function(selector) {
   // following might include class selector regex as well. get rid of before matching
-  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+  selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX]);
 
-  var matches = getRegexMatches(selector, CLASS_REGEX, function(match) {
-    return match.substr(1, match.length); // get rid of '.'
+  var matches = getRegexMatches(selector, [CLASS_REGEX], function(match) {
+    return match.replace('.', '');
   });
 
   return matches;
@@ -124,12 +145,10 @@ getClasses = function(selector) {
  */
 getPseudoElements = function(selector) {
   // following might include pseudo class selector regex as well. get rid of before matching
-  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+  selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX]);
 
-  var matches = getRegexMatches(selector, PSEUDOE_ELEMENT_REGEX, function(match) {
-    return match.substr(2, match.length); // get rid of '::'
+  var matches = getRegexMatches(selector, [PSEUDOE_ELEMENT_REGEX], function(match) {
+    return match.replace('::', '');
   });
 
   return matches;
@@ -143,13 +162,10 @@ getPseudoElements = function(selector) {
  */
 getPseudoClasses = function(selector) {
   // following might include pseudo class selector regex as well. get rid of before matching
-  selector = selector.replace(NON_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(WITH_VAL_ATTRS_REGEX, '');
-  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
-  selector = selector.replace(PSEUDOE_ELEMENT_REGEX, '');
+  selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX, PSEUDOE_ELEMENT_REGEX]);
 
-  var matches = getRegexMatches(selector, PSEUDOE_CLASS_REGEX, function(match) {
-    return match.substr(1, match.length); // get rid of ':'
+  var matches = getRegexMatches(selector, [PSEUDOE_CLASS_REGEX], function(match) {
+    return match.replace(':', '');
   });
 
   return matches;
@@ -162,13 +178,9 @@ getPseudoClasses = function(selector) {
  * @returns {array}
  */
 getNots = function(selector) {
-  var matches = getRegexMatches(selector, PSEUDOE_NOT_REGEX, function(match) {
-    return match.slice(5, match.length); // get rid of ':not('
+  var matches = getRegexMatches(selector, [PSEUDOE_NOT_REGEX], function(match) {
+    return match.replace(':not(', '');
   });
-
-  if (!matches.length) {
-    return null;
-  }
 
   return matches;
 };
@@ -181,12 +193,12 @@ getNots = function(selector) {
  */
 getAttributes = function(selector) {
   // following might include attributes selector regex as well. get rid of before matching
-  selector = selector.replace(PSEUDOE_NOT_REGEX, '');
+  selector = getRidOfMatches(selector, [PSEUDOE_NOT_REGEX]);
 
   // helps regex work correcly. TODO: REGEX SHOULD BE FIXED
   selector = selector.split('][').join(']\n[');
 
-  var matches = getRegexMatches(selector, WITH_VAL_ATTRS_REGEX).concat(getRegexMatches(selector, NON_VAL_ATTRS_REGEX));
+  var matches = getRegexMatches(selector, [WITH_VAL_ATTRS_REGEX]).concat(getRegexMatches(selector, [NON_VAL_ATTRS_REGEX]));
 
   var arr = []; // will include all attributes
 
@@ -205,7 +217,7 @@ getAttributes = function(selector) {
       behav = ATTRIBUTES_OPERATORS[operator];
 
     } else {
-      operator = attr.slice(eqSignPos - 1, eqSignPos + 1); // in case operator is like '{X}='
+      operator = attr.slice(eqSignPos - 1, eqSignPos + 1); // in case operator is like *= or ^= etc..
 
       if (!Object.keys(ATTRIBUTES_OPERATORS).includes(operator)) {
         operator = '=';
@@ -234,6 +246,10 @@ getAttributes = function(selector) {
  * @returns {array} [selector before hierarchy operator occurence, kind of hierarchy, selector after hierarchy operator occurence]
  */
 splitByHierarchy = function(selector) {
+  getRegexMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX], function(match) {
+    selector = selector.split(match).join(match.split(' ').join(''));
+  });
+
   var parts = selector.split(/( )/); // split by whitespaces but include them in splitted arr
 
   for (var i = 0; i < parts.length; i++) {
