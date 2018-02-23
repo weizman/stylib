@@ -1,6 +1,6 @@
 var string = require('../../utils/string');
 
-ATTRIBUTES_OPERATORS = {
+var ATTRIBUTES_OPERATORS = {
   '' : 'present',
   '=' : 'equals',
   '*=' : 'contains',
@@ -10,20 +10,20 @@ ATTRIBUTES_OPERATORS = {
   '|=' : 'hyphenated'
 };
 
-HIERARCHY_OPERATORS = {
+var HIERARCHY_OPERATORS = {
   ' ' : 'descendant',
   '>' : 'directChild',
   '~' : 'generalSibling',
   '+' : 'adjacentSibling'
 };
 
-PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
-NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
-WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
-ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
-PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
-PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+var PSEUDOE_NOT_REGEX = /:not[^\)]*/g;
+var NON_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*\]/g;
+var WITH_VAL_ATTRS_REGEX = /\[-?[_a-zA-Z]+[_a-zA-Z0-9-]*[\^\*\$\~\|]*\=[\"\'].*[\"\']\]/g;
+var ID_REGEX = /\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+var CLASS_REGEX = /\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/g;
+var PSEUDOE_CLASS_REGEX = /\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
+var PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
 
 /**
  * var getRegexMatches - get string and regular expressions and return matches
@@ -33,7 +33,7 @@ PSEUDOE_ELEMENT_REGEX = /\:\:-?[_a-zA-Z]+[_a-zA-Z0-9-\(\+\)]*/g;
  * @param  {function} [onmatch] to run on each match
  * @returns {array}
  */
-getRegexMatches = function(str, rgxs, onmatch) {
+var getRegexMatches = function(str, rgxs, onmatch) {
   onmatch = onmatch || function(match) {
     return match;
   };
@@ -61,7 +61,7 @@ getRegexMatches = function(str, rgxs, onmatch) {
  * @param  {array} rgxs to match in provided string
  * @returns {str}      after manipulations
  */
-getRidOfMatches = function(str, rgxs) {
+var getRidOfMatches = function(str, rgxs) {
   for (var i in rgxs) {
     var rgx = rgxs[i];
 
@@ -83,14 +83,17 @@ getRidOfMatches = function(str, rgxs) {
  * @param  {string} selector
  * @returns {string}
  */
-getRaw = function(selector) {
+var getRaw = function(selector) {
+  // temp delimitor to help get rid of only specific whitespaces in string but not all of them
+  var delimitor = Math.random().toString(36).slice(2);
+
   // following regexs matches might contain whitespaces that should be ignored when trying to extract raw selector
   getRegexMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX], function(match) {
-    selector = selector.replace(match, match.split(' ').join('TEMP_DELIMITER'));
+    selector = selector.replace(match, match.split(' ').join(delimitor));
   });
 
   // sub selector hierarchy components are separated by ' '
-  return selector.split(' ')[0].split('TEMP_DELIMITER').join(' ');
+  return selector.split(' ')[0].split(delimitor).join(' ');
 };
 
 /**
@@ -99,7 +102,7 @@ getRaw = function(selector) {
  * @param  {string} selector
  * @returns {string}
  */
-getTag = function(selector) {
+var getTag = function(selector) {
   return string.trim(selector.split('.')[0].split('#')[0].split(':')[0].split(' ')[0].split('[')[0]) || null;
 };
 
@@ -109,7 +112,7 @@ getTag = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-getIds = function(selector) {
+var getIds = function(selector) {
   // following might include id selector regex as well. get rid of before matching
   selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX]);
 
@@ -126,7 +129,7 @@ getIds = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-getClasses = function(selector) {
+var getClasses = function(selector) {
   // following might include class selector regex as well. get rid of before matching
   selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX]);
 
@@ -143,7 +146,7 @@ getClasses = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-getPseudoElements = function(selector) {
+var getPseudoElements = function(selector) {
   // following might include pseudo class selector regex as well. get rid of before matching
   selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX]);
 
@@ -160,7 +163,7 @@ getPseudoElements = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-getPseudoClasses = function(selector) {
+var getPseudoClasses = function(selector) {
   // following might include pseudo class selector regex as well. get rid of before matching
   selector = getRidOfMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX, PSEUDOE_ELEMENT_REGEX]);
 
@@ -177,7 +180,7 @@ getPseudoClasses = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-getNots = function(selector) {
+var getNots = function(selector) {
   var matches = getRegexMatches(selector, [PSEUDOE_NOT_REGEX], function(match) {
     return match.replace(':not(', '');
   });
@@ -191,7 +194,7 @@ getNots = function(selector) {
  * @param  {string} selector
  * @returns {array}
  */
-getAttributes = function(selector) {
+var getAttributes = function(selector) {
   // following might include attributes selector regex as well. get rid of before matching
   selector = getRidOfMatches(selector, [PSEUDOE_NOT_REGEX]);
 
@@ -245,7 +248,7 @@ getAttributes = function(selector) {
  * @param  {string} selector
  * @returns {array} [selector before hierarchy operator occurence, kind of hierarchy, selector after hierarchy operator occurence]
  */
-splitByHierarchy = function(selector) {
+var splitByHierarchy = function(selector) {
   getRegexMatches(selector, [NON_VAL_ATTRS_REGEX, WITH_VAL_ATTRS_REGEX, PSEUDOE_NOT_REGEX], function(match) {
     selector = selector.split(match).join(match.split(' ').join(''));
   });
@@ -282,6 +285,7 @@ splitByHierarchy = function(selector) {
 };
 
 module.exports.HIERARCHY_OPERATORS = HIERARCHY_OPERATORS;
+module.exports.getRaw = getRaw;
 module.exports.getTag = getTag;
 module.exports.getIds = getIds;
 module.exports.getClasses = getClasses;
