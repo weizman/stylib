@@ -285,6 +285,7 @@ var splitByHierarchy = function(selector) {
 };
 
 module.exports.HIERARCHY_OPERATORS = HIERARCHY_OPERATORS;
+module.exports.ATTRIBUTES_OPERATORS = ATTRIBUTES_OPERATORS;
 module.exports.getRaw = getRaw;
 module.exports.getTag = getTag;
 module.exports.getIds = getIds;

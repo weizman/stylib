@@ -1,250 +1,141 @@
-describe("selector", function() {
-  require = require('requiree')(require);
-  var selector = require.dev('../js/modules/selector/selector.js');
+describe('selector', function() {
+  var selector = require('../js/modules/selector/selector.js');
 
-  /**
-   * var selectorify - takes an array of Selectors/objects and straighten them up
-   * in order to perform comparison on them after
-   *
-   * @param  {array} arr array of Selectors/objects
-   * @param {array} ignoreProps array of props to ignore when comparing objects
-   * @returns {array} when all objects are selectorified
-   */
-  var selectorify = function(arr, ignoreProps) {
-    var selectorifyRecursive = function(obj) {
-      for (var i in obj) {
-        var value = obj[i];
-
-        if (!value || 'object' !== typeof value || 'parent' === i) {
-          // null? undefined? primitive? no need to manipulate
-          continue;
-        }
-
-        if (Array.isArray(value)) {
-          // array? recursively manipulate every item in array
-          for (var j in value) {
-            value[j] = selectorifyRecursive(value[j]);
-          }
-        } else {
-          // object? needs to be selectorified as well. take care in next recursive
-          obj[i] = selectorifyRecursive(value);
-        }
-
-      };
-
-      if (!obj.tag) {
-        // obj does not have 'tag' property? means it is not an object to selectorify
-        return obj;
+  var expectToBeContained = function(obj1, obj2) {
+    for (var prop in obj2) {
+      if ('object' === typeof obj1[prop]) {
+        expect(obj2[prop]).toBeDefined();
+        expectToBeContained(obj1[prop], obj2[prop]);
+      } else {
+        expect(obj1[prop]).toEqual(obj2[prop]);
       }
-
-      var finalObj = obj;
-      if (0 !== obj.constructor.toString().indexOf('function Selector')) {
-        // selectorify only when obj is not already a Selector instance
-        finalObj = new selector.Selector(obj);
-      }
-
-      if (ignoreProps) {
-        delete finalObj.parse;
-        delete finalObj.stringify;
-        delete finalObj.parent;
-      }
-
-      return finalObj;
-    };
-
-    arr = arr.slice(0); // duplicate array, do not work on original
-    for (var i in arr) {
-      var obj = arr[i];
-      arr[i] = selectorifyRecursive(obj);
     }
-
-    return arr;
   };
 
-  /**
-   * var testSelector - takes a selector object a selector string and tests
-   * whether selector module functions work properly or not
-   *
-   * @param  {object} selectorObj selector representation in object
-   * @param {string} selectorStr selector representation in string
-   * @param {boolean} selectorObjContainsHierarchy whether selector object contains hierarchy or not
-   */
-  var testSelector = function(selectorObj, selectorStr, selectorObjContainsHierarchy) {
-    var str1 = selector.stringify(selectorObj);
-    var str2 = selectorStr;
-
-    expect(str1).toEqual(str2);
-
-    var obj1 = selectorify(selectorObj, true);
-    var obj2 = selectorify(selector.parse(selectorStr), true);
-
-    expect(obj1[0]).toEqual(obj2[0]);
-
-    var obj1 = selectorify(selectorObj);
-    var obj2 = selectorify(selector.parse(selectorStr));
-
-    // in case selector object contains hierarchy,
-    // must use selector.stringify to make it work
-    expect(selectorObjContainsHierarchy ?
-      selector.stringify([selectorObj[0]]) :
-      selectorObj[0].raw
-    ).toEqual(obj2[0].stringify());
-  };
-
-  var selectorStr1 = '*';
-  var selectorObj1 = [
-    {
+  var selectorStr = '*, SPAN#top_div.bootstrap_divs:nth-child(4)::first-line:not(P ~ A):not(DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style]) > P.bootstrap_p';
+  var selectorObj = [{
+    'attributes' : [],
+    'classes' : [],
+    'ids' : [],
+    'pseudoClasses' : [],
+    'pseudoElements' : [],
+    'nots' : [],
+    'raw' : '*',
+    'tag' : '*'
+  }, {
+    'attributes' : [],
+    'classes' : ['bootstrap_divs'],
+    'directChild' : {
       'attributes' : [],
-      'classes' : [],
+      'classes' : ['bootstrap_p'],
       'ids' : [],
       'pseudoClasses' : [],
       'pseudoElements' : [],
       'nots' : [],
-      'raw' : '*',
-      'tag' : '*'
-    }
-  ];
-
-  var selectorStr2 = '#ID.CLASS';
-  var selectorObj2 = [
-    {
-      'attributes' : [],
-      'classes' : ['CLASS'],
-      'ids' : ['ID'],
-      'pseudoClasses' : [],
-      'pseudoElements' : [],
-      'nots' : [],
-      'raw' : '#ID.CLASS',
-      'tag' : '*'
-    }
-  ];
-
-  var selectorStr3 = 'P:hover:nth-child(3n)::wow > SPAN#qq:not(SPAN):not(*.z.a[style*="{1}"][xxx]) ~ P.sss';
-  var selectorObj3 = [
-    {
+      'raw' : 'P.bootstrap_p',
+      'tag' : 'P'
+    },
+    'ids' : ['top_div'],
+    'pseudoClasses' : ['nth-child(4)'],
+    'pseudoElements' : ['first-line'],
+    'nots' : [{
       'attributes' : [],
       'classes' : [],
-      'ids' : [],
-      'pseudoClasses' : ['hover', 'nth-child(3n)'],
-      'pseudoElements' : ['wow'],
-      'nots' : [],
-      'raw' : 'P:hover:nth-child(3n)::wow',
-      'tag' : 'P',
-      'directChild' : {
+      'generalSibling' : {
         'attributes' : [],
         'classes' : [],
-        'ids' : ['qq'],
+        'ids' : [],
         'pseudoClasses' : [],
         'pseudoElements' : [],
-        'nots' : [
-          {
-            'attributes' : [],
-            'classes' : [],
-            'ids' : [],
-            'pseudoClasses' : [],
-            'pseudoElements' : [],
-            'nots' : [],
-            'raw' : 'SPAN',
-            'tag' : 'SPAN'
-          },
-          {
-            'attributes' : [
-              {
-                'property' : 'style',
-                'value' : '{1}',
-                'behaviour' : 'contains',
-                'operator' : '*=',
-                'raw' : 'style*="{1}"'
-              },
-              {
-                'property' : 'xxx',
-                'value' : null,
-                'behaviour' : 'present',
-                'operator' : '',
-                'raw' : 'xxx'
-              }
-            ],
-            'classes' : ['z', 'a'],
-            'ids' : [],
-            'pseudoClasses' : [],
-            'pseudoElements' : [],
-            'nots' : [],
-            'raw' : '*.z.a[style*="{1}"][xxx]',
-            'tag' : '*'
-          }
-        ],
-        'raw' : 'SPAN#qq:not(SPAN):not(*.z.a[style*="{1}"][xxx])',
-        'tag' : 'SPAN',
-        'generalSibling' : {
-          'attributes' : [],
-          'classes' : ['sss'],
-          'ids' : [],
-          'pseudoClasses' : [],
-          'pseudoElements' : [],
-          'nots' : [],
-          'raw' : 'P.sss',
-          'tag' : 'P'
-        }
-      }
-    }
-  ];
-
-  var selectorStr4 = 'STYLE#id2.class1:empty[style="aaa:click"][style^=\'aaa\'][style]';
-  var selectorObj4 = [
-    {
-      'attributes' : [
-        {
-          'property' : 'style',
-          'value' : 'aaa:click',
-          'behaviour' : 'equals',
-          'operator' : '=',
-          'raw' : 'style="aaa:click"'
-        },
-        {
-          'property' : 'style',
-          'value' : 'aaa',
-          'behaviour' : 'beginsWith',
-          'operator' : '^=',
-          'raw' : 'style^=\'aaa\''
-        },
-        {
-          'property' : 'style',
-          'value' : null,
-          'behaviour' : 'present',
-          'operator' : '',
-          'raw' : 'style'
-        },
-      ],
-      'classes' : ['class1'],
-      'ids' : ['id2'],
-      'pseudoClasses' : ['empty'],
+        'nots' : [],
+        'raw' : 'A',
+        'tag' : 'A'
+      },
+      'ids' : [],
+      'pseudoClasses' : [],
       'pseudoElements' : [],
       'nots' : [],
-      'raw' : 'STYLE#id2.class1:empty[style="aaa:click"][style^=\'aaa\'][style]',
-      'tag' : 'STYLE'
-    }
-  ];
+      'raw' : 'P',
+      'tag' : 'P'
+    }, {
+      'attributes' : [{
+        'property' : 'style',
+        'value' : 'display: none',
+        'behaviour' : 'equals',
+        'operator' : '=',
+        'raw' : 'style="display: none"'
+      }, {
+        'property' : 'style',
+        'value' : 'lay: non',
+        'behaviour' : 'contains',
+        'operator' : '*=',
+        'raw' : 'style*=\'lay: non\''
+      }, {
+        'property' : 'style',
+        'value' : null,
+        'behaviour' : 'present',
+        'operator' : '',
+        'raw' : 'style'
+      }],
+      'classes' : [],
+      'ids' : ['bottom_div', 'bottom_div_2'],
+      'pseudoClasses' : [],
+      'pseudoElements' : [],
+      'nots' : [],
+      'raw' : 'DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style]',
+      'tag' : 'DIV'
+    }],
+    'raw' : 'SPAN#top_div.bootstrap_divs:nth-child(4)::first-line:not(P ~ A):not(DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style])',
+    'tag' : 'SPAN'
+  }];
 
-  it("should be able to stringify/parse a selector object/string (1)", function() {
-    testSelector(selectorObj1, selectorStr1);
+  it('should be able to parse a selector string', function() {
+    var parsedSelector = selector.parse(selectorStr);
+    expectToBeContained(parsedSelector, selectorObj);
   });
 
-  it("should be able to stringify/parse a selector object/string (2)", function() {
-    testSelector(selectorObj2, selectorStr2);
-  });
+  it('should be able to add/remove selector types to/from a selector instance', function() {
+    var parsedSelector = selector.parse(selectorStr);
 
-  it("should be able to stringify/parse a selector object/string (3)", function() {
-    testSelector(selectorObj3, selectorStr3, true);
-  });
+    expect(parsedSelector[0].equalsTag('*')).toBeTruthy();
+    parsedSelector[0].updateTag('SPAN');
+    expect(parsedSelector[0].equalsTag('SPAN')).toBeTruthy();
 
-  it("should be able to stringify/parse a selector object/string (4)", function() {
-    testSelector(selectorObj4, selectorStr4);
-  });
+    expect(parsedSelector[0].containsId('ID1')).toBeFalsy();
+    parsedSelector[0].addId('ID1');
+    expect(parsedSelector[0].containsId('ID1')).toBeTruthy();
+    parsedSelector[0].removeId('ID1');
+    expect(parsedSelector[0].containsId('ID1')).toBeFalsy();
 
-  it("should be able to stringify/parse a selector object/string (5)", function() {
-    var selectorObj5 = selectorObj1.concat(selectorObj2.concat(selectorObj3.concat(selectorObj4)));
-    var selectorStr5 = selectorStr1 + ', ' + selectorStr2 + ', ' + selectorStr3 + ', ' + selectorStr4;
+    expect(parsedSelector[0].containsClass('CLASS1')).toBeFalsy();
+    parsedSelector[0].addClass('CLASS1');
+    expect(parsedSelector[0].containsClass('CLASS1')).toBeTruthy();
+    parsedSelector[0].removeClass('CLASS1');
+    expect(parsedSelector[0].containsClass('CLASS1')).toBeFalsy();
 
-    testSelector(selectorObj5, selectorStr5);
+    expect(parsedSelector[0].containsPseudoElement('PE1')).toBeFalsy();
+    parsedSelector[0].addPseudoElement('PE1');
+    expect(parsedSelector[0].containsPseudoElement('PE1')).toBeTruthy();
+    parsedSelector[0].removePseudoElement('PE1');
+    expect(parsedSelector[0].containsPseudoElement('PE1')).toBeFalsy();
+
+    expect(parsedSelector[0].containsPseudoClass('PC1')).toBeFalsy();
+    parsedSelector[0].addPseudoClass('PC1');
+    expect(parsedSelector[0].containsPseudoClass('PC1')).toBeTruthy();
+    parsedSelector[0].removePseudoClass('PC1');
+    expect(parsedSelector[0].containsPseudoClass('PC1')).toBeFalsy();
+
+    expect(parsedSelector[0].containsAttribute('ATTR', '*=', 'VAL')).toBeFalsy();
+    parsedSelector[0].addAttribute('ATTR', '*=', 'VAL');
+    expect(parsedSelector[0].containsAttribute('ATTR', '*=', 'VAL')).toBeTruthy();
+    parsedSelector[0].removeAttribute('ATTR', '*=', 'VAL');
+    expect(parsedSelector[0].containsAttribute('ATTR', '*=', 'VAL')).toBeFalsy();
+
+    var not = selector.parse('A')[0];
+    expect(parsedSelector[0].containsNot(not)).toBeFalsy();
+    parsedSelector[0].addNot(not);
+    expect(parsedSelector[0].containsNot(not)).toBeTruthy();
+    parsedSelector[0].removeNot(not);
+    expect(parsedSelector[0].containsNot(not)).toBeFalsy();
   });
 });

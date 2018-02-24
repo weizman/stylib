@@ -6,10 +6,6 @@ stylib - Vast Library For Style Manipulations
 style related actions and manipulations much more simple.
 
 # Dependencies
-In order to simply use `stylib`, the following dependencies are required (will be installed automatically):
-
-1. [`requiree`](https://www.npmjs.com/package/requiree)
-
 In order to edit and work with `stylib`, the following packages must be installed:
 
 1. `browserify` (global):
@@ -30,6 +26,12 @@ In order to install `jasmine` simply run (through the command line):
 
 `npm install -g jasmine`
 
+4. `babel` (global):
+
+In order to install `babel` simply run (through the command line):
+
+`npm install -g babel-cli`
+
 # Install
 In order to install `stylib` using `npm`, simply run:
 
@@ -41,7 +43,7 @@ compressed version), so the lib can be used simply by importing the js file with
 # Build
 To build `stylib` (the uncompressed version), simply build it using `browserify`:
 
-`browserify js/init.js -o stylib.bundle.js` (while current dir is `.\stylib\`).
+`browserify js/init.js -t babelify -o stylib.bundle.js` (while current dir is `.\stylib\`).
 
 To build `stylib` (the compressed version), simply build it using `google-closure-compiler-js` (after calling `browserify` first):
 
