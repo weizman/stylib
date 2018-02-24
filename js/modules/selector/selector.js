@@ -1,5 +1,5 @@
 var string = require('../../utils/string');
-var parser = require('./parser.js');
+var parser = require('./parser');
 
 /**
  * var updateSelectorParent - get a Selector that just got modified

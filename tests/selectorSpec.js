@@ -1,5 +1,5 @@
 describe('selector', function() {
-  var selector = require('../js/modules/selector/selector.js');
+  var selector = require('../js/modules/selector/selector');
 
   var expectToBeContained = function(obj1, obj2) {
     for (var prop in obj2) {

@@ -478,7 +478,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var string = require('../../utils/string');
-var parser = require('./parser.js');
+var parser = require('./parser');
 
 /**
  * var updateSelectorParent - get a Selector that just got modified
@@ -873,18 +873,18 @@ var _stringify = function _stringify(arr) {
 module.exports.parse = _parse;
 module.exports.stringify = _stringify;
 
-},{"../../utils/string":7,"./parser.js":4}],6:[function(require,module,exports){
+},{"../../utils/string":7,"./parser":4}],6:[function(require,module,exports){
 'use strict';
 
-var inline = require('./modules/inline/inline.js');
-var outline = require('./modules/outline/outline.js');
-var selector = require('./modules/selector/selector.js');
+var inline = require('./modules/inline/inline');
+var outline = require('./modules/outline/outline');
+var selector = require('./modules/selector/selector');
 
 module.exports.inline = inline;
 module.exports.outline = outline;
 module.exports.selector = selector;
 
-},{"./modules/inline/inline.js":2,"./modules/outline/outline.js":3,"./modules/selector/selector.js":5}],7:[function(require,module,exports){
+},{"./modules/inline/inline":2,"./modules/outline/outline":3,"./modules/selector/selector":5}],7:[function(require,module,exports){
 'use strict';
 
 /**

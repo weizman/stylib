@@ -1,6 +1,6 @@
-var inline = require('./modules/inline/inline.js');
-var outline = require('./modules/outline/outline.js');
-var selector = require('./modules/selector/selector.js');
+var inline = require('./modules/inline/inline');
+var outline = require('./modules/outline/outline');
+var selector = require('./modules/selector/selector');
 
 module.exports.inline = inline;
 module.exports.outline = outline;

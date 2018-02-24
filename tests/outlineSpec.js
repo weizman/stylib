@@ -1,5 +1,5 @@
 describe("outline", function() {
-  var outline = require('../js/modules/outline/outline.js');
+  var outline = require('../js/modules/outline/outline');
 
   /**
    * var removeEmptyStrings - get rid of empty strings
