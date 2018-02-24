@@ -103,7 +103,9 @@ var parse = function parse(str) {
       continue;
     }
 
-    obj[selector] = {};
+    if (!obj[selector]) {
+      obj[selector] = {};
+    }
 
     var rules = string.removeLineBreakers(arr[i + 1]);
     rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
