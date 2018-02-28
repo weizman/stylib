@@ -42,7 +42,7 @@ var addToSelector = function(selector, type, val) {
  */
 var removeFromSelector = function(selector, type, val) {
   selector[type] = selector[type].filter(function(curVal) {
-    return curVal !== val && (!curVal.raw || !val.raw || curVal.raw !== val.raw);
+    return curVal !== val && (!curVal['raw'] || !val['raw'] || curVal['raw'] !== val['raw']);
   });
 
   selector['raw'] = selector.stringify();
@@ -60,7 +60,7 @@ var removeFromSelector = function(selector, type, val) {
  */
 var isContainedInSelector = function(selector, type, val) {
   return selector[type].filter(function(curVal) {
-    return curVal === val || (curVal.raw && val.raw && curVal.raw === val.raw);
+    return curVal === val || (curVal['raw'] && val['raw'] && curVal['raw'] === val['raw']);
   }).length !== 0;
 };
 
@@ -81,7 +81,7 @@ class Selector {
   }
 
   parse() {
-    return parse(this.raw);
+    return parse(this['raw']);
   }
 
   updateTag(val) {
@@ -157,7 +157,7 @@ class Selector {
     }
 
     for (var i in this['attributes']) {
-      if (raw === this['attributes'][i].raw) {
+      if (raw === this['attributes'][i]['raw']) {
         return;
       }
     }
