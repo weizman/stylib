@@ -84,137 +84,183 @@ class Selector {
     return parse(this['_raw']);
   }
 
-  updateTag(val) {
-    this['tag'] = val || '*';
+  isTag(tag) {
+    return tag === this['tag'];
+  }
 
-    var prevTag = parser.getTag(this['_raw']);
-    if (!prevTag) {
-      this['_raw'] = val + this['_raw'];
-    } else {
-      this['_raw'] = this['_raw'].replace(prevTag, val);
+  contains(prop, val) {
+    if (!prop || !val) {
+      return;
     }
 
-    updateSelectorParent(this);
-  }
+    switch (prop) {
 
-  equalsTag (val) {
-    return this['tag'] === val;
-  }
+    case 'id':
+      return isContainedInSelector(this, 'ids', val);
+      break;
 
-  addId(val) {
-    addToSelector(this, 'ids', val);
-  }
+    case 'class':
+      return isContainedInSelector(this, 'classes', val);
+      break;
 
-  removeId(val) {
-    removeFromSelector(this, 'ids', val);
-  }
+    case 'pseudoClass':
+      return isContainedInSelector(this, 'pseudoClasses', val);
+      break;
 
-  containsId(val) {
-    return isContainedInSelector(this, 'ids', val);
-  }
+    case 'pseudoElement':
+      return isContainedInSelector(this, 'pseudoElements', val);
+      break;
 
-  addClass(val) {
-    addToSelector(this, 'classes', val);
-  }
+    case 'attribute':
+      // in case of attribute setting, variables and their order change
+      var operator = arguments[2];
+      prop = val;
+      val = arguments[3];
 
-  removeClass(val) {
-    removeFromSelector(this, 'classes', val);
-  }
+      var raw = prop; // TODO: make it possible to pass 'contains' instead of '*='
 
-  containsClass(val) {
-    return isContainedInSelector(this, 'classes', val);
-  }
-
-  addPseudoClass(val) {
-    addToSelector(this, 'pseudoClasses', val);
-  }
-
-  removePseudoClass(val) {
-    removeFromSelector(this, 'pseudoClasses', val);
-  }
-
-  containsPseudoClass(val) {
-    return isContainedInSelector(this, 'pseudoClasses', val);
-  }
-
-  addPseudoElement(val) {
-    addToSelector(this, 'pseudoElements', val);
-  }
-
-  removePseudoElement(val) {
-    removeFromSelector(this, 'pseudoElements', val);
-  }
-
-  containsPseudoElement(val) {
-    return isContainedInSelector(this, 'pseudoElements', val);
-  }
-
-  addAttribute(prop, operator, val) {
-    var raw = prop; // TODO: make it possible to pass 'contains' instead of '*='
-
-    if ('' !== operator) {
-      raw += operator + val;
-    }
-
-    for (var i in this['attributes']) {
-      if (raw === this['attributes'][i]['_raw']) {
-        return;
+      if ('' !== operator) {
+        raw += operator + val;
       }
-    }
 
-    addToSelector(this, 'attributes', {
-      'property' : prop,
-      'value' : val,
-      'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
-      'operator' : operator,
-      '_raw' : raw
-    });
+      return isContainedInSelector(this, 'attributes', {
+        'property' : prop,
+        'value' : val,
+        'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
+        'operator' : operator,
+        '_raw' : raw
+      });
+
+      break;
+
+    case 'not':
+      return isContainedInSelector(this, 'nots', val);
+    }
   }
 
-  removeAttribute(prop, operator, val) {
-    var raw = prop; // TODO: make it possible to pass 'contains' instead of '*='
-
-    if ('' !== operator) {
-      raw += operator + val;
+  set(prop, val) {
+    if (!prop || !val) {
+      return;
     }
 
-    removeFromSelector(this, 'attributes', {
-      'property' : prop,
-      'value' : val,
-      'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
-      'operator' : operator,
-      '_raw' : raw
-    });
+    switch (prop) {
+
+    case 'tag':
+      this['tag'] = val || '*';
+
+      var prevTag = parser.getTag(this['_raw']);
+      if (!prevTag) {
+        this['_raw'] = val + this['_raw'];
+      } else {
+        this['_raw'] = this['_raw'].replace(prevTag, val);
+      }
+
+      updateSelectorParent(this);
+      break;
+
+    case 'id':
+      addToSelector(this, 'ids', val);
+      break;
+
+    case 'class':
+      addToSelector(this, 'classes', val);
+      break;
+
+    case 'pseudoClass':
+      addToSelector(this, 'pseudoClasses', val);
+      break;
+
+    case 'pseudoElement':
+      addToSelector(this, 'pseudoElements', val);
+      break;
+
+    case 'attribute':
+      // in case of attribute setting, variables and their order change
+      var operator = arguments[2];
+      prop = val;
+      val = arguments[3];
+
+      var raw = prop; // TODO: make it possible to pass 'contains' instead of '*='
+
+      if ('' !== operator) {
+        raw += operator + val;
+      }
+
+      for (var i in this['attributes']) {
+        if (raw === this['attributes'][i]['_raw']) {
+          return;
+        }
+      }
+
+      addToSelector(this, 'attributes', {
+        'property' : prop,
+        'value' : val,
+        'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
+        'operator' : operator,
+        '_raw' : raw
+      });
+
+      break;
+
+    case 'not':
+      val['_parent'] = this; // link new not to it's parent
+      addToSelector(this, 'nots', val);
+    }
   }
 
-  containsAttribute(prop, operator, val) {
-    var raw = prop; // TODO: make it possible to pass 'contains' instead of '*='
-
-    if ('' !== operator) {
-      raw += operator + val;
+  remove(prop, val) {
+    if (!prop || !val) {
+      return;
     }
 
-    return isContainedInSelector(this, 'attributes', {
-      'property' : prop,
-      'value' : val,
-      'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
-      'operator' : operator,
-      '_raw' : raw
-    });
-  }
+    switch (prop) {
 
-  addNot(val) {
-    val['_parent'] = this; // link new not to it's parent
-    addToSelector(this, 'nots', val);
-  };
+    case 'tag':
+      this['set']('tag', '*');
+      break;
 
-  removeNot(val) {
-    delete val['_parent'];
-    removeFromSelector(this, 'nots', val);
-  };
+    case 'id':
+      removeFromSelector(this, 'ids', val);
+      break;
 
-  containsNot(val) {
-    return isContainedInSelector(this, 'nots', val);
+    case 'class':
+      removeFromSelector(this, 'classes', val);
+      break;
+
+    case 'pseudoClass':
+      removeFromSelector(this, 'pseudoClasses', val);
+      break;
+
+    case 'pseudoElement':
+      removeFromSelector(this, 'pseudoElements', val);
+      break;
+
+    case 'attribute':
+      // in case of attribute setting, variables and their order change
+      var operator = arguments[2];
+      prop = val;
+      val = arguments[3];
+
+      var raw = prop; // TODO: make it possible to pass 'contains' instead of '*='
+
+      if ('' !== operator) {
+        raw += operator + val;
+      }
+
+      removeFromSelector(this, 'attributes', {
+        'property' : prop,
+        'value' : val,
+        'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
+        'operator' : operator,
+        '_raw' : raw
+      });
+
+      break;
+
+    case 'not':
+      delete val['_parent'];
+      removeFromSelector(this, 'nots', val);
+    }
   }
 }
 

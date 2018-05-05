@@ -91,51 +91,52 @@ describe('selector', function() {
 
   it('should be able to parse a selector string', function() {
     var parsedSelector = selector.parse(selectorStr);
+
     expectToBeContained(parsedSelector, selectorObj);
   });
 
   it('should be able to add/remove selector types to/from a selector instance', function() {
     var parsedSelector = selector.parse(selectorStr);
 
-    expect(parsedSelector[0].equalsTag('*')).toBeTruthy();
-    parsedSelector[0].updateTag('SPAN');
-    expect(parsedSelector[0].equalsTag('SPAN')).toBeTruthy();
+    expect(parsedSelector[0].isTag('*')).toBeTruthy();
+    parsedSelector[0].set('tag', 'SPAN');
+    expect(parsedSelector[0].isTag('SPAN')).toBeTruthy();
 
-    expect(parsedSelector[0].containsId('ID1')).toBeFalsy();
-    parsedSelector[0].addId('ID1');
-    expect(parsedSelector[0].containsId('ID1')).toBeTruthy();
-    parsedSelector[0].removeId('ID1');
-    expect(parsedSelector[0].containsId('ID1')).toBeFalsy();
+    expect(parsedSelector[0].contains('id', 'ID1')).toBeFalsy();
+    parsedSelector[0].set('id', 'ID1');
+    expect(parsedSelector[0].contains('id', 'ID1')).toBeTruthy();
+    parsedSelector[0].remove('id', 'ID1');
+    expect(parsedSelector[0].contains('id', 'ID1')).toBeFalsy();
 
-    expect(parsedSelector[0].containsClass('CLASS1')).toBeFalsy();
-    parsedSelector[0].addClass('CLASS1');
-    expect(parsedSelector[0].containsClass('CLASS1')).toBeTruthy();
-    parsedSelector[0].removeClass('CLASS1');
-    expect(parsedSelector[0].containsClass('CLASS1')).toBeFalsy();
+    expect(parsedSelector[0].contains('class', 'CLASS1')).toBeFalsy();
+    parsedSelector[0].set('class', 'CLASS1');
+    expect(parsedSelector[0].contains('class', 'CLASS1')).toBeTruthy();
+    parsedSelector[0].remove('class', 'CLASS1');
+    expect(parsedSelector[0].contains('class', 'CLASS1')).toBeFalsy();
 
-    expect(parsedSelector[0].containsPseudoElement('PE1')).toBeFalsy();
-    parsedSelector[0].addPseudoElement('PE1');
-    expect(parsedSelector[0].containsPseudoElement('PE1')).toBeTruthy();
-    parsedSelector[0].removePseudoElement('PE1');
-    expect(parsedSelector[0].containsPseudoElement('PE1')).toBeFalsy();
+    expect(parsedSelector[0].contains('pseudoElement', 'PE1')).toBeFalsy();
+    parsedSelector[0].set('pseudoElement', 'PE1');
+    expect(parsedSelector[0].contains('pseudoElement', 'PE1')).toBeTruthy();
+    parsedSelector[0].remove('pseudoElement', 'PE1');
+    expect(parsedSelector[0].contains('pseudoElement', 'PE1')).toBeFalsy();
 
-    expect(parsedSelector[0].containsPseudoClass('PC1')).toBeFalsy();
-    parsedSelector[0].addPseudoClass('PC1');
-    expect(parsedSelector[0].containsPseudoClass('PC1')).toBeTruthy();
-    parsedSelector[0].removePseudoClass('PC1');
-    expect(parsedSelector[0].containsPseudoClass('PC1')).toBeFalsy();
+    expect(parsedSelector[0].contains('pseudoClass', 'PC1')).toBeFalsy();
+    parsedSelector[0].set('pseudoClass', 'PC1');
+    expect(parsedSelector[0].contains('pseudoClass', 'PC1')).toBeTruthy();
+    parsedSelector[0].remove('pseudoClass', 'PC1');
+    expect(parsedSelector[0].contains('pseudoClass', 'PC1')).toBeFalsy();
 
-    expect(parsedSelector[0].containsAttribute('ATTR', '*=', 'VAL')).toBeFalsy();
-    parsedSelector[0].addAttribute('ATTR', '*=', 'VAL');
-    expect(parsedSelector[0].containsAttribute('ATTR', '*=', 'VAL')).toBeTruthy();
-    parsedSelector[0].removeAttribute('ATTR', '*=', 'VAL');
-    expect(parsedSelector[0].containsAttribute('ATTR', '*=', 'VAL')).toBeFalsy();
+    expect(parsedSelector[0].contains('attribute', 'ATTR', '*=', 'VAL')).toBeFalsy();
+    parsedSelector[0].set('attribute', 'ATTR', '*=', 'VAL');
+    expect(parsedSelector[0].contains('attribute', 'ATTR', '*=', 'VAL')).toBeTruthy();
+    parsedSelector[0].remove('attribute', 'ATTR', '*=', 'VAL');
+    expect(parsedSelector[0].contains('attribute', 'ATTR', '*=', 'VAL')).toBeFalsy();
 
     var not = selector.parse('A')[0];
-    expect(parsedSelector[0].containsNot(not)).toBeFalsy();
-    parsedSelector[0].addNot(not);
-    expect(parsedSelector[0].containsNot(not)).toBeTruthy();
-    parsedSelector[0].removeNot(not);
-    expect(parsedSelector[0].containsNot(not)).toBeFalsy();
+    expect(parsedSelector[0].contains('not', not)).toBeFalsy();
+    parsedSelector[0].set('not', not);
+    expect(parsedSelector[0].contains('not', not)).toBeTruthy();
+    parsedSelector[0].remove('not', not);
+    expect(parsedSelector[0].contains('not', not)).toBeFalsy();
   });
 });
