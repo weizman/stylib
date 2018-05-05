@@ -20,7 +20,7 @@ describe('selector', function() {
     'pseudoClasses' : [],
     'pseudoElements' : [],
     'nots' : [],
-    'raw' : '*',
+    '_raw' : '*',
     'tag' : '*'
   }, {
     'attributes' : [],
@@ -32,7 +32,7 @@ describe('selector', function() {
       'pseudoClasses' : [],
       'pseudoElements' : [],
       'nots' : [],
-      'raw' : 'P.bootstrap_p',
+      '_raw' : 'P.bootstrap_p',
       'tag' : 'P'
     },
     'ids' : ['top_div'],
@@ -48,14 +48,14 @@ describe('selector', function() {
         'pseudoClasses' : [],
         'pseudoElements' : [],
         'nots' : [],
-        'raw' : 'A',
+        '_raw' : 'A',
         'tag' : 'A'
       },
       'ids' : [],
       'pseudoClasses' : [],
       'pseudoElements' : [],
       'nots' : [],
-      'raw' : 'P',
+      '_raw' : 'P',
       'tag' : 'P'
     }, {
       'attributes' : [{
@@ -63,29 +63,29 @@ describe('selector', function() {
         'value' : 'display: none',
         'behaviour' : 'equals',
         'operator' : '=',
-        'raw' : 'style="display: none"'
+        '_raw' : 'style="display: none"'
       }, {
         'property' : 'style',
         'value' : 'lay: non',
         'behaviour' : 'contains',
         'operator' : '*=',
-        'raw' : 'style*=\'lay: non\''
+        '_raw' : 'style*=\'lay: non\''
       }, {
         'property' : 'style',
         'value' : null,
         'behaviour' : 'present',
         'operator' : '',
-        'raw' : 'style'
+        '_raw' : 'style'
       }],
       'classes' : [],
       'ids' : ['bottom_div', 'bottom_div_2'],
       'pseudoClasses' : [],
       'pseudoElements' : [],
       'nots' : [],
-      'raw' : 'DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style]',
+      '_raw' : 'DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style]',
       'tag' : 'DIV'
     }],
-    'raw' : 'SPAN#top_div.bootstrap_divs:nth-child(4)::first-line:not(P ~ A):not(DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style])',
+    '_raw' : 'SPAN#top_div.bootstrap_divs:nth-child(4)::first-line:not(P ~ A):not(DIV#bottom_div#bottom_div_2[style="display: none"][style*=\'lay: non\'][style])',
     'tag' : 'SPAN'
   }];
 

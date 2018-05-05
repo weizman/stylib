@@ -8,9 +8,9 @@ var parser = require('./parser');
  * @param  {Selector} selector
  */
 var updateSelectorParent = function(selector) {
-  while (selector['parent']) {
-    selector['parent']['raw'] = selector['parent'].stringify();
-    selector = selector['parent'];
+  while (selector['_parent']) {
+    selector['_parent']['_raw'] = selector['_parent'].stringify();
+    selector = selector['_parent'];
   }
 };
 
@@ -28,7 +28,7 @@ var addToSelector = function(selector, type, val) {
 
   selector[type].push(val);
 
-  selector['raw'] = selector.stringify();
+  selector['_raw'] = selector.stringify();
 
   updateSelectorParent(selector);
 };
@@ -42,10 +42,10 @@ var addToSelector = function(selector, type, val) {
  */
 var removeFromSelector = function(selector, type, val) {
   selector[type] = selector[type].filter(function(curVal) {
-    return curVal !== val && (!curVal['raw'] || !val['raw'] || curVal['raw'] !== val['raw']);
+    return curVal !== val && (!curVal['_raw'] || !val['_raw'] || curVal['_raw'] !== val['_raw']);
   });
 
-  selector['raw'] = selector.stringify();
+  selector['_raw'] = selector.stringify();
 
   updateSelectorParent(selector);
 };
@@ -60,7 +60,7 @@ var removeFromSelector = function(selector, type, val) {
  */
 var isContainedInSelector = function(selector, type, val) {
   return selector[type].filter(function(curVal) {
-    return curVal === val || (curVal['raw'] && val['raw'] && curVal['raw'] === val['raw']);
+    return curVal === val || (curVal['_raw'] && val['_raw'] && curVal['_raw'] === val['_raw']);
   }).length !== 0;
 };
 
@@ -81,17 +81,17 @@ class Selector {
   }
 
   parse() {
-    return parse(this['raw']);
+    return parse(this['_raw']);
   }
 
   updateTag(val) {
     this['tag'] = val || '*';
 
-    var prevTag = parser.getTag(this['raw']);
+    var prevTag = parser.getTag(this['_raw']);
     if (!prevTag) {
-      this['raw'] = val + this['raw'];
+      this['_raw'] = val + this['_raw'];
     } else {
-      this['raw'] = this['raw'].replace(prevTag, val);
+      this['_raw'] = this['_raw'].replace(prevTag, val);
     }
 
     updateSelectorParent(this);
@@ -157,7 +157,7 @@ class Selector {
     }
 
     for (var i in this['attributes']) {
-      if (raw === this['attributes'][i]['raw']) {
+      if (raw === this['attributes'][i]['_raw']) {
         return;
       }
     }
@@ -167,7 +167,7 @@ class Selector {
       'value' : val,
       'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
       'operator' : operator,
-      'raw' : raw
+      '_raw' : raw
     });
   }
 
@@ -183,7 +183,7 @@ class Selector {
       'value' : val,
       'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
       'operator' : operator,
-      'raw' : raw
+      '_raw' : raw
     });
   }
 
@@ -199,17 +199,17 @@ class Selector {
       'value' : val,
       'behaviour' : parser.ATTRIBUTES_OPERATORS[operator],
       'operator' : operator,
-      'raw' : raw
+      '_raw' : raw
     });
   }
 
   addNot(val) {
-    val['parent'] = this; // link new not to it's parent
+    val['_parent'] = this; // link new not to it's parent
     addToSelector(this, 'nots', val);
   };
 
   removeNot(val) {
-    delete val['parent'];
+    delete val['_parent'];
     removeFromSelector(this, 'nots', val);
   };
 
@@ -238,7 +238,7 @@ var parse = function(str) {
     var obj = {};
 
     selector = string.trim(selector);
-    obj['raw'] = parser.getRaw(selector);
+    obj['_raw'] = parser.getRaw(selector);
     obj['tag'] = parser.getTag(selector) || '*';
 
     var ret = parser.splitByHierarchy(selector);
@@ -259,7 +259,7 @@ var parse = function(str) {
     obj['pseudoClasses'] = parser.getPseudoClasses(selector);
 
     obj['nots'] = [];
-    var nots = parser.getNots(obj['raw']);
+    var nots = parser.getNots(obj['_raw']);
     for (var j in nots) {
       obj['nots'][j] = parse(nots[j])[0]; // every :not includes another selector
     }
@@ -270,12 +270,12 @@ var parse = function(str) {
 
     // make sure every selector is linked to it's parent selector (if one exists)
     for (var j in selInst['nots']) {
-      selInst['nots'][j]['parent'] = selInst;
+      selInst['nots'][j]['_parent'] = selInst;
     }
 
     for (var j in parser.HIERARCHY_OPERATORS) {
       if (selInst[parser.HIERARCHY_OPERATORS[j]]) {
-        selInst[parser.HIERARCHY_OPERATORS[j]]['parent'] = selInst;
+        selInst[parser.HIERARCHY_OPERATORS[j]]['_parent'] = selInst;
       }
     }
 
@@ -295,7 +295,7 @@ var stringify = function(arr) {
   var constructRawSelector = function(selector) {
     var str = '';
 
-    str += parser.getTag(selector['raw']) || '';
+    str += parser.getTag(selector['_raw']) || '';
 
     for (var i in selector['ids']) {
       str += '#' + selector['ids'][i];
@@ -314,11 +314,11 @@ var stringify = function(arr) {
     }
 
     for (var i in selector['attributes']) {
-      str += '[' + selector['attributes'][i]['raw'] + ']';
+      str += '[' + selector['attributes'][i]['_raw'] + ']';
     }
 
     for (var i in selector['nots']) {
-      if (!selector['nots'][i]['parent']) {
+      if (!selector['nots'][i]['_parent']) {
         // in case a not was removed using API but this selector does not know it yet
         delete selector['nots'][i];
         continue;

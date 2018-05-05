@@ -210,7 +210,7 @@ var getAttributes = function(selector) {
     var attr = matches[i].slice(1, matches[i].length - 1); // get rid of '[' and ']'
     var attrObj = {};
 
-    attrObj['raw'] = attr;
+    attrObj['_raw'] = attr;
 
     var eqSignPos = attr.indexOf('=');
 
