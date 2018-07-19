@@ -41,12 +41,16 @@ var stringify = function(obj) {
       continue;
     }
 
+    if ('_' === prop[0]) {
+      continue;
+    }
+
     var val = obj[prop];
 
     str += prop + ': ' + val + '; ';
   }
 
-  return str
+  return str;
 };
 
 module.exports.parse = parse;

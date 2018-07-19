@@ -59,8 +59,13 @@ var parse = function(str) {
  */
 var stringify = function(obj) {
   var str = '';
+
   for (var selector in obj) {
     if (!obj.hasOwnProperty(selector)) {
+      continue;
+    }
+
+    if ('_' === selector[0]) {
       continue;
     }
 
@@ -70,6 +75,10 @@ var stringify = function(obj) {
 
     for (var prop in rules) {
       if (!rules.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      if ('_' === prop[0]) {
         continue;
       }
 
