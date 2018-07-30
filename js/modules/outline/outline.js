@@ -1,4 +1,76 @@
 var string = require('../../utils/string');
+var Inline = require('../inline/inline');
+
+/**
+ * class Outline
+ *
+ * @param {object} str contains string representation of parsed outline style
+ */
+class Outline {
+  constructor(str) {
+    var obj = parse(str);
+
+    obj['_raw'] = stringify(obj);
+
+    for (var prop in obj) {
+      if (!obj.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      this[prop] = obj[prop];
+
+      if ('_' === prop[0]) {
+        continue;
+      }
+
+      // Inline needs to know it's Outline parent
+      this[prop]['_parent'] = this;
+    }
+  }
+
+  stringify() {
+    this['_raw'] = stringify(this);
+    return this['_raw'];
+  }
+
+  parse() {
+    return parse(this['_raw']);
+  }
+
+  contains(selector, prop) {
+    if (undefined === this[selector]) {
+      return false;
+    }
+
+    if (undefined === prop) {
+      return true;
+    }
+
+    return undefined !== this[selector][prop];
+  }
+
+  get(selector, prop) {
+    if (undefined === this[selector]) {
+      return undefined;
+    }
+
+    if (undefined === prop) {
+      return this[selector];
+    }
+
+    return this[selector][prop];
+  }
+
+  set(prop, val) {
+    this[prop] = val;
+    this.stringify();
+  }
+
+  remove(prop) {
+    delete this[prop];
+    this.stringify();
+  }
+}
 
 /**
  * var parse - convert outline style (css) string to valid outline style (css) object
@@ -30,22 +102,7 @@ var parse = function(str) {
     var rules = string.removeLineBreakers(arr[i + 1]);
     rules = rules.slice(1, rules.length - 1); // get rid of '{' and '}'
 
-    var sets = rules.split(';');
-    for (var j in sets) {
-      var set = sets[j];
-
-      var prop = string.trim(set.split(':')[0]);
-      if (!prop) {
-          continue;
-      }
-
-      var val = string.trim(set.split(':')[1]);
-      if (!val) {
-        continue;
-      }
-
-      obj[selector][prop] = val;
-    }
+    obj[selector] = new Inline(rules);
   }
 
   return obj;
@@ -93,5 +150,4 @@ var stringify = function(obj) {
   return str;
 };
 
-module.exports.parse = parse;
-module.exports.stringify = stringify;
+module.exports = Outline;

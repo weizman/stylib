@@ -1,6 +1,60 @@
 var string = require('../../utils/string');
 
 /**
+ * class Inline
+ *
+ * @param {object} str contains string representation of inline style to parse
+ */
+class Inline {
+  constructor(str) {
+    var obj = parse(str);
+
+    obj['_raw'] = stringify(obj);
+
+    for (var prop in obj) {
+      if (!obj.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      this[prop] = obj[prop];
+    }
+  }
+
+  stringify() {
+    this['_raw'] = stringify(this);
+
+    if (this['_parent']) {
+      // Inline has an Outline parent? it should also be updated
+      this['_parent'].stringify();
+    }
+
+    return this['_raw'];
+  }
+
+  parse() {
+    return parse(this['_raw']);
+  }
+
+  contains(prop) {
+    return undefined !== this[prop];
+  }
+
+  get(prop) {
+    return this[prop];
+  }
+
+  set(prop, val) {
+    this[prop] = val;
+    this.stringify();
+  }
+
+  remove(prop) {
+    delete this[prop];
+    this.stringify();
+  }
+}
+
+/**
  * var parse - convert inline style string to valid inline style object
  *
  * @param  {string} str
@@ -53,5 +107,4 @@ var stringify = function(obj) {
   return str;
 };
 
-module.exports.parse = parse;
-module.exports.stringify = stringify;
+module.exports = Inline;
