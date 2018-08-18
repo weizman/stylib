@@ -1,5 +1,5 @@
 describe('selector', function() {
-  var selector = require('../js/modules/selector/selector');
+  var Selector = require('../js/modules/selector/selector');
 
   var expectToBeContained = function(obj1, obj2) {
     for (var prop in obj2) {
@@ -90,17 +90,17 @@ describe('selector', function() {
   }];
 
   it('should be able to parse a selector string', function() {
-    var parsedSelector = selector.parse(selectorStr);
+    var parsedSelector = new Selector(selectorStr);
 
     expectToBeContained(parsedSelector, selectorObj);
   });
 
   it('should be able to add/remove selector types to/from a selector instance', function() {
-    var parsedSelector = selector.parse(selectorStr);
+    var parsedSelector = new Selector(selectorStr);
 
-    expect(parsedSelector[0].isTag('*')).toBeTruthy();
+    expect(parsedSelector[0].isTagEquals('*')).toBeTruthy();
     parsedSelector[0].set('tag', 'SPAN');
-    expect(parsedSelector[0].isTag('SPAN')).toBeTruthy();
+    expect(parsedSelector[0].isTagEquals('SPAN')).toBeTruthy();
 
     expect(parsedSelector[0].contains('id', 'ID1')).toBeFalsy();
     parsedSelector[0].set('id', 'ID1');
@@ -132,7 +132,7 @@ describe('selector', function() {
     parsedSelector[0].remove('attribute', 'ATTR', '*=', 'VAL');
     expect(parsedSelector[0].contains('attribute', 'ATTR', '*=', 'VAL')).toBeFalsy();
 
-    var not = selector.parse('A')[0];
+    var not = new Selector('A')[0];
     expect(parsedSelector[0].contains('not', not)).toBeFalsy();
     parsedSelector[0].set('not', not);
     expect(parsedSelector[0].contains('not', not)).toBeTruthy();
